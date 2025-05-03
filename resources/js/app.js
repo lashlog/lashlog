@@ -1,4 +1,4 @@
 import { createApp } from "vue";
-import App from "./components/App.vue";
+import Calendar from "./components/Calendar.vue";
 
-createApp(App).mount("#app");
+createApp(Calendar).mount("#app");

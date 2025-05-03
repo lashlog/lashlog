@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
+            $table->text('allergy_notes')->nullable(); // アレルギー内容（ある場合のみ記入）
+            $table->text('surgery_notes')->nullable(); // 手術歴内容（ある場合のみ記入）
             $table->timestamps();
         });
     }
