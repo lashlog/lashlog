@@ -16,7 +16,11 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->foreignId('menu_id')->constrained()->onDelete('cascade');
             $table->foreignId('staff_id')->constrained()->onDelete('cascade');
-            $table->datetime('reserved_at');
+            $table->foreignId('shop_id')->constrained()->onDelete('cascade');
+
+            $table->time('start_time');         // 例: 09:00
+            $table->time('end_time');           // 例: 10:30
+            $table->integer('duration_minutes')->nullable();  // 例: 90
             $table->text('memo')->nullable();
             $table->timestamps();
         });

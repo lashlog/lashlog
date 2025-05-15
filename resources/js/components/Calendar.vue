@@ -4,6 +4,9 @@
             <button @click="view = 'week'">週表示</button>
             <button @click="view = 'day'">日表示</button>
         </div>
+        <button @click="openCreateModal" class="btn btn-create">
+            新規予約作成
+        </button>
 
         <div class="calendar">
             <!-- 時間目盛り列 -->
@@ -51,39 +54,81 @@
                         @dblclick="openEditModal(res)"
                     >
                         {{ res.customer }}
+                        <button
+                            @click.stop="removeReservation(res.id)"
+                            class="btn-delete"
+                        >
+                            ×
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <!-- 編集モーダル部分をここに入れる -->
-    <div v-if="isOpen" class="modal">
-        <h3>予約編集</h3>
-        <div>顧客名: {{ editingReservation.customer }}</div>
-        <div>
-            開始時間:
-            <input v-model="editingReservation.startTime" type="time" />
+    <div v-if="isOpen" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="modal-title">予約編集</h3>
+
+            <div class="modal-field">
+                <label>顧客名</label>
+                <div class="modal-text">
+                    <select
+                        v-model="editingReservation.customerId"
+                        class="modal-input"
+                    >
+                        <option
+                            v-for="customer in customerList"
+                            :value="customer.id"
+                            :key="customer.id"
+                        >
+                            {{ customer.name }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-field">
+                <label>開始時間</label>
+                <input
+                    v-model="editingReservation.startTime"
+                    type="time"
+                    class="modal-input"
+                />
+            </div>
+
+            <div class="modal-field">
+                <label>終了時間</label>
+                <input
+                    v-model="editingReservation.endTime"
+                    type="time"
+                    class="modal-input"
+                />
+            </div>
+
+            <div class="modal-field">
+                <label>所要時間（分）</label>
+                <input
+                    v-model.number="editingReservation.durationMinutes"
+                    type="number"
+                    min="15"
+                    step="15"
+                    class="modal-input"
+                />
+            </div>
+
+            <div class="modal-actions">
+                <button @click="saveChanges" class="btn btn-save">保存</button>
+                <button @click="close" class="btn btn-cancel">閉じる</button>
+            </div>
         </div>
-        <div>
-            終了時間:
-            <input v-model="editingReservation.endTime" type="time" />
-        </div>
-        <div>
-            所要時間:
-            <input
-                v-model.number="editingReservation.durationMinutes"
-                type="number"
-                min="15"
-                step="15"
-            />
-        </div>
-        <button @click="saveChanges">保存</button>
-        <button @click="close">閉じる</button>
     </div>
 </template>
 
 <script setup>
 import { ref, computed } from "vue";
+import axios from "../axios";
+
 const timeStep = ref(30); // ← ここを 15, 30, 60 に切り替え可能
 const view = ref("day");
 
@@ -104,6 +149,11 @@ const timeSlots = computed(() => {
     }
     return slots;
 });
+const customerList = ref([]);
+async function loadCustomers() {
+    const res = await fetch("/api/customers");
+    customerList.value = await res.json();
+}
 
 const timeSlotHeight = computed(() => `${timeStep.value * 2}px`);
 const reservations = ref([
@@ -150,18 +200,10 @@ function calcStyle(res) {
     const endM = toMinutes(res.endTime);
 
     return {
-        position: "absolute",
         top: `${(startM - baseMinutes) * heightPerMin}px`,
         height: `${(endM - startM) * heightPerMin}px`,
         left: "2px",
         right: "2px",
-        background: "#a3d5ff",
-        border: "1px solid #007bff",
-        boxSizing: "border-box",
-        padding: "2px",
-        overflow: "hidden",
-        borderRadius: "4px",
-        fontSize: "12px",
     };
 }
 
@@ -243,36 +285,119 @@ function isOverlapping(newRes, staffId) {
 const isOpen = ref(false);
 const editingReservation = ref({});
 
-function openEditModal(res) {
-    editingReservation.value = { ...res }; // コピーを渡す
-    isOpen.value = true;
-}
+// function openEditModal(res) {
+//     editingReservation.value = { ...res }; // コピーを渡す
+//     isOpen.value = true;
+// }
 
 function close() {
     isOpen.value = false;
 }
+async function saveChanges() {
+    const payload = {
+        customer_id: editingReservation.value.customerId, // ← 注意：IDを使う
+        menu_id: 1,
+        staff_id: editingReservation.value.staffId,
+        reserved_date: "2024-06-01",
+        start_time: editingReservation.value.startTime,
+        end_time: editingReservation.value.endTime,
+        duration_minutes: editingReservation.value.durationMinutes,
+    };
 
-function saveChanges() {
-    const idx = reservations.value.findIndex(
-        (r) => r.id === editingReservation.value.id
-    );
-    if (
-        isOverlapping(
-            editingReservation.value,
-            editingReservation.value.staffId
-        )
-    ) {
-        alert("他の予約と重なります！");
-        return;
-    }
-    if (editingReservation.value.startTime > editingReservation.value.endTime) {
-        alert("開始時間は終了時間より前にしてください。");
-        return;
-    }
-    if (idx !== -1) {
-        reservations.value[idx] = { ...editingReservation.value };
+    try {
+        let res;
+        if (isEditing.value) {
+            res = await updateReservation(editingReservation.value.id, payload);
+        } else {
+            res = await createReservation(payload);
+            reservations.value.push({
+                id: res.reservation.id,
+                staffId: res.reservation.staff_id,
+                startTime: res.reservation.start_time,
+                endTime: res.reservation.end_time,
+                customer: res.reservation.customer.name,
+            });
+        }
+        alert(isEditing.value ? "更新しました！" : "作成しました！");
         isOpen.value = false;
+    } catch (error) {
+        alert("保存失敗しました: " + error.message);
     }
+}
+async function createNewReservation() {
+    const payload = {
+        customer_id: 1,
+        menu_id: 1,
+        staff_id: 1,
+        reserved_date: "2024-06-01",
+        start_time: "10:00",
+        end_time: "11:30",
+        duration_minutes: 90,
+    };
+    try {
+        const res = await createReservation(payload);
+        reservations.value.push({
+            id: res.reservation.id,
+            staffId: res.reservation.staff_id,
+            startTime: res.reservation.start_time,
+            endTime: res.reservation.end_time,
+            customer: res.reservation.customer.name,
+        });
+        alert("新規予約を作成しました！");
+    } catch (error) {
+        alert("作成失敗: " + error.message);
+    }
+}
+
+async function removeReservation(id) {
+    try {
+        await deleteReservation(id);
+        reservations.value = reservations.value.filter((res) => res.id !== id);
+        alert("予約を削除しました！");
+    } catch (error) {
+        alert("削除失敗: " + error.message);
+    }
+}
+async function updateReservation(id, payload) {
+    const response = await axios.patch(`/reservations/${id}`, payload);
+    return response.data;
+}
+
+async function createReservation(payload) {
+    const response = await axios.post(`/reservations`, payload);
+    return response.data;
+}
+
+async function deleteReservation(id) {
+    const response = await axios.delete(`/reservations/${id}`);
+    return response.data;
+}
+const isEditing = ref(false);
+
+function openCreateModal() {
+    isEditing.value = false;
+    editingReservation.value = {
+        customer: "",
+        customerId: customerList.value[0]?.id || null, // 先頭の顧客を初期選択
+        staffId: staffList.value[0].id,
+        startTime: "09:00",
+        endTime: "10:30",
+        durationMinutes: 90,
+    };
+    isOpen.value = true;
+}
+
+function openEditModal(res) {
+    isEditing.value = true;
+    editingReservation.value = {
+        ...res,
+        customerId: res.customerId || findCustomerIdByName(res.customer),
+    };
+    isOpen.value = true;
+}
+function findCustomerIdByName(name) {
+    const customer = customerList.value.find((c) => c.name === name);
+    return customer ? customer.id : null;
 }
 </script>
 
