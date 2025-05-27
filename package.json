@@ -18,6 +18,8 @@
     "dependencies": {
         "@vueuse/core": "^13.1.0",
         "date-fns": "^4.1.0",
-        "vue-cal": "^4.10.2"
+        "pinia": "^3.0.2",
+        "vue-cal": "^4.10.2",
+        "vue-router": "^4.5.1"
     }
 }
