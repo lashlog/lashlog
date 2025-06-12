@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('staff', function (Blueprint $table) {
+        Schema::create('staffs', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->nullable();
+            $table->foreignId('owner_id')->constrained()->onDelete('cascade');
             $table->foreignId('shop_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->string('email')->unique(); // ログイン用
+            $table->string('password');
+            $table->enum('role', ['owner', 'staff'])->default('staff'); // 権限区別
+            $table->rememberToken();
             $table->timestamps();
         });
     }

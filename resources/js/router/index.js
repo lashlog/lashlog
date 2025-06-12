@@ -1,16 +1,17 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-// 各ページコンポーネントを読み込み
-import CalendarView from "../components/CalendarView.vue";
-import ShopList from "../components/ShopList.vue";
-import StaffList from "../components/StaffList.vue";
-import MenuList from "../components/MenuList.vue";
-import CustomerList from "../components/CustomerList.vue";
+// 機能ごとのページを分かりやすくインポート
+import CalendarView from "../pages/Reservation/CalendarView.vue";
+import ShopList from "../pages/Shop/ShopList.vue";
+import StaffList from "../pages/Staff/StaffList.vue";
+import ShopForm from "../pages/Shop/ShopForm.vue";
+import MenuList from "../pages/Menu/MenuList.vue";
+import CustomerList from "../pages/Customer/CustomerList.vue";
 
 const routes = [
-    { path: "/", redirect: "/calendar" }, // デフォルトはカレンダーへ
+    { path: "/", redirect: "/calendar" },
     { path: "/calendar", component: CalendarView },
-    { path: "/shops", component: ShopList },
+    { path: "/shops", component: ShopForm },
     { path: "/staffs", component: StaffList },
     { path: "/menus", component: MenuList },
     { path: "/customers", component: CustomerList },

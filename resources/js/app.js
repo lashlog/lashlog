@@ -1,4 +1,7 @@
+// resources/js/main.js
 import { createApp } from "vue";
-import Calendar from "./components/Calendar.vue";
+import App from "./App.vue";
+import router from "./router";
+import { createPinia } from "pinia";
 
-createApp(Calendar).mount("#app");
+createApp(App).use(router).use(createPinia()).mount("#app");
