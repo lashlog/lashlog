@@ -127,7 +127,7 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import axios from "../../axios";
+import axios from "../../../axios";
 
 const timeStep = ref(30); // ← ここを 15, 30, 60 に切り替え可能
 const view = ref("day");

@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Shop;
 use App\Models\Menu;
 use Illuminate\Http\Request;
 
 class MenuController extends Controller
 {
-    public function index()
+    public function index(Shop $shop)
     {
-        return Menu::all();
+        return $shop->menus()->orderBy('sort_order')->get();
     }
 
     public function store(Request $request)
@@ -26,4 +27,3 @@ class MenuController extends Controller
         return response()->json($menu, 201);
     }
 }
-

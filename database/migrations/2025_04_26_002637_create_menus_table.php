@@ -14,8 +14,14 @@ return new class extends Migration
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('duration'); // 所要時間（分）
-            $table->integer('price');    // 金額（税抜 or 税込）
+            $table->foreignId('shop_id')->constrained()->onDelete('cascade');
+
+            $table->string('category'); // enumで対応してもOK
+            $table->string('unit')->nullable(); // 例：120本
+            $table->integer('price');
+            $table->integer('duration_minutes');
+            $table->boolean('is_active')->default(true);
+            $table->integer('sort_order')->default(0);
             $table->timestamps();
         });
     }

@@ -23,7 +23,7 @@
                         'font-bold underline text-yellow-300':
                             isActive('/shops'),
                     }"
-                    >🏠 店舗</RouterLink
+                    >設定</RouterLink
                 >
 
                 <RouterLink
