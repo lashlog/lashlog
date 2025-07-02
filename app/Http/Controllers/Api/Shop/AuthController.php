@@ -45,6 +45,7 @@ class AuthController extends Controller
      */
     public function me(Request $request)
     {
+        // dd("test"); // デバッグ用のダンプ
         return Auth::guard('shop')->user();
     }
 }

@@ -9,6 +9,7 @@ import MenuList from "../pages/admin/Menu/MenuList.vue";
 import CustomerList from "../pages/admin/Customer/CustomerList.vue";
 import Login from "../pages/admin/Auth/Login.vue";
 import { useShopAuth } from "../composables/useShopAuth";
+import { useShopStore } from "@/stores/shop";
 const routes = [
     { path: "/", redirect: "/login" },
     { path: "/login", component: Login },
@@ -33,25 +34,27 @@ const router = createRouter({
 });
 // ✅ ログインチェック用グローバルガード
 router.beforeEach(async (to, from, next) => {
-    const { shop, fetchShop } = useShopAuth(router);
+    const shopStore = useShopStore();
+    const { fetchShop } = useShopAuth();
+    console.log("ルート変更:", to.path);
+    console.log("shopStore.shop:", shopStore.shop);
     if (to.meta.requiresAuth === true) {
-        console.log("test", shop.value);
-        // 初期状態ではshopがnullなので、明示的にチェック
-        if (shop.value === null) {
+        if (shopStore.shop === null) {
             try {
                 await fetchShop();
             } catch (e) {
                 console.warn("認証されていません。ログイン画面に遷移します");
             }
         }
-        if (!shop.value) {
+        if (!shopStore.shop) {
             return next("/login");
         }
     }
-    // ログイン済みで /login に来た場合はカレンダーに飛ばす
-    if (to.path === "/login" && shop.value) {
+
+    if (to.path === "/login" && shopStore.shop) {
         return next("/calendar");
     }
+
     next();
 });
 export default router;

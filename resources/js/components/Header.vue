@@ -88,15 +88,15 @@ import "@/../css/components/Header.css";
 import { useShopAuth } from "@/composables/useShopAuth";
 
 const route = useRoute();
-const { shop, logout } = useShopAuth();
+const { shop, logout, fetchShop } = useShopAuth();
 const dropdownOpen = ref(false);
 
 function isActive(path) {
     return route.path.startsWith(path);
 }
-// onMounted(() => {
-//     fetchShop(); // これが重要
-// });
+onMounted(() => {
+    fetchShop(); // これが重要
+});
 
 const toggleDropdown = () => {
     dropdownOpen.value = !dropdownOpen.value;

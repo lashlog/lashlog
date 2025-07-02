@@ -56,34 +56,34 @@ import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useShopAuth } from "@/composables/useShopAuth";
-
-const { shop, fetchShop } = useShopAuth();
+import { useShopStore } from "@/stores/shop";
+const shopStore = useShopStore();
+const { fetchShop } = useShopAuth();
 
 const router = useRouter();
 const email = ref("");
 const password = ref("");
 const error = ref("");
 
-// onMounted(async () => {
-//     console.log("Login page mounted");
-//     await fetchShop();
-//     console.log("Shop fetched:", shop.value);
-//     if (shop.value) {
-//         router.push("/calendar"); // 👈 ログイン済みならリダイレクト
-//     }
-// });
+onMounted(async () => {
+    await fetchShop();
+    if (shopStore.shop) {
+        router.push("/calendar");
+    }
+});
 const handleLogin = async () => {
     error.value = "";
     try {
         await axios.get("/sanctum/csrf-cookie", { withCredentials: true });
         await axios.post(
-            "/shop/login",
+            "api/shop/login",
             {
                 email: email.value,
                 password: password.value,
             },
             { withCredentials: true }
         );
+        await axios.get("/api/shop/me", { withCredentials: true });
         await fetchShop(); // 👈 ログイン後にショップ情報を再取得
         alert("ログインに成功しました。");
         router.push("/calendar");
