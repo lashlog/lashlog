@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->foreignId('shop_id')->constrained()->onDelete('cascade');
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->text('allergy_notes')->nullable(); // アレルギー内容（ある場合のみ記入）

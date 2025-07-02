@@ -41,9 +41,9 @@ return [
             'provider' => 'users',
         ],
 
-        'staff' => [
+        'shop' => [
             'driver' => 'session',
-            'provider' => 'staffs',
+            'provider' => 'shops',
         ],
     ],
 
@@ -70,9 +70,9 @@ return [
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
 
-        'staffs' => [
+        'shops' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_STAFF_MODEL', App\Models\Staff::class),
+            'model' => env('AUTH_SHOP_MODEL', App\Models\Shop::class),
         ],
     ],
 
@@ -103,9 +103,9 @@ return [
             'throttle' => 60,
         ],
 
-        'staffs' => [
-            'provider' => 'staffs',
-            'table' => env('AUTH_STAFF_PASSWORD_RESET_TOKEN_TABLE', 'staff_password_reset_tokens'),
+        'shops' => [
+            'provider' => 'shops',
+            'table' => env('AUTH_SHOP_PASSWORD_RESET_TOKEN_TABLE', 'shop_password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,
         ],

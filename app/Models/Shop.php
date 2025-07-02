@@ -2,15 +2,29 @@
 // app/Models/Shop.php
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
-class Shop extends Model
+
+class Shop extends Authenticatable
 {
-    use HasFactory;
+    use HasApiTokens;
 
-    protected $fillable = ['name']; // 必要に応じて他のカラムも追加
-
+    protected $table = 'shops';
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'address',
+        'phone',
+        'map_url',
+        'weekday_open_time',
+        'weekday_close_time',
+        'weekend_open_time',
+        'weekend_close_time',
+        'closed_days'
+    ];
+    protected $hidden = ['password'];
     public function reservations()
     {
         return $this->hasMany(Reservation::class);
