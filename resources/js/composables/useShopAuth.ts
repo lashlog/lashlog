@@ -20,12 +20,16 @@ export function useShopAuth(router?: Router) {
     const logout = async () => {
         await axios.post("api/shop/logout", {}, { withCredentials: true });
         shopStore.clearShop();
+        if (router) {
+            router.push("/login");
+        }
     };
     const fetchShop = async () => {
         try {
             const res = await axios.get("api/shop/me", {
                 withCredentials: true,
             });
+            console.log("Fetched shop:", res.data);
             shopStore.setShop(res.data);
         } catch (e: any) {
             shopStore.clearShop();

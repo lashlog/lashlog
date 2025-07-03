@@ -11,7 +11,7 @@
                         to="/calendar"
                         class="hover:underline"
                         :class="{
-                            'font-bold underline text-yellow-300':
+                            'font-bold underline text-primary-300':
                                 isActive('/calendar'),
                         }"
                         >📅 カレンダー</RouterLink
@@ -21,7 +21,7 @@
                         to="/shops"
                         class="hover:underline"
                         :class="{
-                            'font-bold underline text-yellow-300':
+                            'font-bold underline text-primary-300':
                                 isActive('/shops'),
                         }"
                         >設定</RouterLink
@@ -31,7 +31,7 @@
                         to="/staffs"
                         class="hover:underline"
                         :class="{
-                            'font-bold underline text-yellow-300':
+                            'font-bold underline text-primary-300':
                                 isActive('/staffs'),
                         }"
                         >👩‍💼 スタッフ</RouterLink
@@ -41,7 +41,7 @@
                         to="/menus"
                         class="hover:underline"
                         :class="{
-                            'font-bold underline text-yellow-300':
+                            'font-bold underline text-primary-300':
                                 isActive('/menus'),
                         }"
                         >📋 メニュー</RouterLink
@@ -51,7 +51,7 @@
                         to="/customers"
                         class="hover:underline"
                         :class="{
-                            'font-bold underline text-yellow-300':
+                            'font-bold underline text-primary-300':
                                 isActive('/customers'),
                         }"
                         >👤 顧客</RouterLink
@@ -60,17 +60,17 @@
                 <div v-if="shop" class="relative">
                     <button
                         @click="toggleDropdown"
-                        class="font-bold text-gray-700"
+                        class="font-bold text-white border border-greige-300 hover:cursor-pointer hover:text-primary-300 bg-primary-500 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-primary-300"
                     >
                         {{ shop.name }} ⏷
                     </button>
                     <div
                         v-if="dropdownOpen"
-                        class="absolute right-0 mt-2 w-40 bg-white border rounded shadow z-10"
+                        class="absolute right-0 mt-2 w-40 bg-greige-200 border rounded shadow z-10"
                     >
                         <button
                             @click="handleLogout"
-                            class="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                            class="block w-full text-left px-4 py-2 hover:bg-primary-100 hover:cursor-pointer"
                         >
                             🚪 ログアウト
                         </button>
@@ -82,21 +82,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import "@/../css/components/Header.css";
 import { useShopAuth } from "@/composables/useShopAuth";
-
+import { useShopStore } from "@/stores/shop";
 const route = useRoute();
-const { shop, logout, fetchShop } = useShopAuth();
+const { logout, fetchShop } = useShopAuth();
 const dropdownOpen = ref(false);
+const shopStore = useShopStore();
+const shop = computed(() => shopStore.shop);
 
 function isActive(path) {
     return route.path.startsWith(path);
 }
-onMounted(() => {
-    fetchShop(); // これが重要
-});
+// onMounted(() => {
+//     fetchShop(); // これが重要
+//     console.log("Header mounted, shop:", shop);
+// });
 
 const toggleDropdown = () => {
     dropdownOpen.value = !dropdownOpen.value;

@@ -16,16 +16,18 @@ class AuthController extends Controller
     {
         $credentials = $request->only('email', 'password');
 
-        if (!Auth::guard('shop')->attempt($credentials)) {
-            return response()->json(['message' => '認証失敗'], 401);
+        if (Auth::guard('shop')->attempt($credentials)) {
+            $request->session()->regenerate();
+            $shop = Auth::guard('shop')->user();
+
+            return response()->json([
+                'message' => 'ログイン成功',
+                'user' => $shop
+            ]);
         }
-
-        $shop = Auth::guard('shop')->user();
-
         return response()->json([
-            'message' => 'ログイン成功',
-            'user' => $shop
-        ]);
+            'message' => 'ログイン失敗',
+        ], 401);
     }
 
     /**

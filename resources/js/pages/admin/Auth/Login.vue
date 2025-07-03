@@ -74,7 +74,7 @@ onMounted(async () => {
 const handleLogin = async () => {
     error.value = "";
     try {
-        await axios.get("/sanctum/csrf-cookie", { withCredentials: true });
+        await axios.get("api/sanctum/csrf-cookie", { withCredentials: true });
         await axios.post(
             "api/shop/login",
             {
@@ -83,9 +83,8 @@ const handleLogin = async () => {
             },
             { withCredentials: true }
         );
-        await axios.get("/api/shop/me", { withCredentials: true });
+        // await axios.get("/api/shop/me", { withCredentials: true });
         await fetchShop(); // 👈 ログイン後にショップ情報を再取得
-        alert("ログインに成功しました。");
         router.push("/calendar");
     } catch {
         error.value =

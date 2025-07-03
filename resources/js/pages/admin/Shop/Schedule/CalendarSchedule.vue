@@ -1,19 +1,52 @@
 <template>
-    <div>
+    <div class="relative mb-10">
+        <div
+            class="text-xs mt-1 right-8 px-2 py-1 bg-white rounded absolute"
+            :class="
+                schedule[formatDate(day)]?.length
+                    ? 'text-green-600'
+                    : 'text-gray-400'
+            "
+        >
+            {{
+                schedule[formatDate(day)]?.length
+                    ? `${schedule[formatDate(day)].length} 件登録済`
+                    : "登録なし"
+            }}
+        </div>
+    </div>
+    <div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow">
         <div class="flex items-center justify-between mb-4">
-            <button @click="prevMonth" class="text-blue-500">← 前の月</button>
+            <button
+                @click="prevMonth"
+                class="text-primary-600 hover:cursor-pointer"
+            >
+                ← 前の月
+            </button>
             <h2 class="text-xl font-bold">
                 {{ currentYear }}年 {{ currentMonth + 1 }}月 のスケジュール
             </h2>
-            <button @click="nextMonth" class="text-blue-500">次の月 →</button>
+            <button
+                @click="nextMonth"
+                class="text-primary-600 hover:cursor-pointer"
+            >
+                次の月 →
+            </button>
         </div>
 
         <div class="grid grid-cols-7 gap-2">
             <div
                 v-for="day in daysInMonth"
                 :key="day"
-                @click="openModal(day)"
-                class="p-3 border rounded cursor-pointer hover:bg-gray-100"
+                @click="day && !isPastDay(day) && openModal(day)"
+                class="p-3 border min-h-24 rounded"
+                :class="[
+                    day === null
+                        ? 'bg-gray-200 cursor-default'
+                        : isPastDay(day)
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'hover:bg-gray-100 cursor-pointer',
+                ]"
             >
                 <div class="font-bold">{{ day }}</div>
                 <div
@@ -28,7 +61,7 @@
         <!-- モーダル -->
         <div
             v-if="isModalOpen"
-            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+            class="fixed inset-0 flex items-center justify-center bg-black/20 backdrop-opacity-50 z-50"
         >
             <div class="bg-white rounded-lg p-6 w-96">
                 <h3 class="text-lg font-bold mb-4">
@@ -113,7 +146,19 @@ const daysInMonth = computed(() => {
         currentMonth.value + 1,
         0
     ).getDate();
-    return Array.from({ length: days }, (_, i) => i + 1);
+    const firstDay = new Date(
+        currentYear.value,
+        currentMonth.value,
+        1
+    ).getDay(); // 0=日曜
+
+    // 空白（前月の日にちではなく空欄）
+    const blanks = Array.from({ length: firstDay }, () => null);
+
+    // 実際の日付（1～月末）
+    const dates = Array.from({ length: days }, (_, i) => i + 1);
+
+    return [...blanks, ...dates];
 });
 
 const formatDate = (day) => {
@@ -165,6 +210,13 @@ const saveSchedule = () => {
         selectedSchedule.value.filter((s) => s.start && s.end);
     emit("update:modelValue", { ...schedule.value });
     closeModal();
+};
+const isPastDay = (day) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // 時間をリセット（正確な日付比較のため）
+
+    const date = new Date(currentYear.value, currentMonth.value, day);
+    return date < today;
 };
 </script>
 

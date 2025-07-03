@@ -1,14 +1,14 @@
 <template>
     <div class="flex min-h-screen">
         <!-- サイドバー -->
-        <aside class="w-64 bg-gray-100 border-r p-6">
+        <aside class="w-64 bg-greige-100 border-r border-greige-500 p-6">
             <h2 class="text-xl font-bold mb-6">設定メニュー</h2>
             <ul class="space-y-4">
                 <li>
                     <button
                         class="w-full text-left"
                         :class="{
-                            'font-bold text-blue-600': activeTab === 'basic',
+                            'font-bold text-primary-600': activeTab === 'basic',
                         }"
                         @click="activeTab = 'basic'"
                     >
@@ -19,7 +19,8 @@
                     <button
                         class="w-full text-left"
                         :class="{
-                            'font-bold text-blue-600': activeTab === 'schedule',
+                            'font-bold text-primary-600':
+                                activeTab === 'schedule',
                         }"
                         @click="activeTab = 'schedule'"
                     >
@@ -30,7 +31,7 @@
                     <button
                         class="w-full text-left"
                         :class="{
-                            'font-bold text-blue-600': activeTab === 'staff',
+                            'font-bold text-primary-600': activeTab === 'staff',
                         }"
                         @click="activeTab = 'staff'"
                     >
@@ -59,24 +60,25 @@
                     <button
                         :class="[
                             'px-4 py-2 border-b-2 font-semibold',
-                            form.schedule_type === 'calendar'
-                                ? 'border-blue-500 text-blue-500'
-                                : 'border-transparent text-gray-500 hover:text-blue-500',
-                        ]"
-                        @click="form.schedule_type = 'calendar'"
-                    >
-                        📆 カレンダーで設定
-                    </button>
-                    <button
-                        :class="[
-                            'px-4 py-2 border-b-2 font-semibold',
                             form.schedule_type === 'weekday'
-                                ? 'border-blue-500 text-blue-500'
-                                : 'border-transparent text-gray-500 hover:text-blue-500',
+                                ? 'border-primary-500 text-primary-500'
+                                : 'border-transparent text-gray-500 hover:text-primary-500 hover:cursor-pointer',
                         ]"
                         @click="form.schedule_type = 'weekday'"
                     >
                         📅 曜日ごとで設定
+                    </button>
+
+                    <button
+                        :class="[
+                            'px-4 py-2 border-b-2 font-semibold',
+                            form.schedule_type === 'calendar'
+                                ? 'border-primary-500 text-primary-500'
+                                : 'border-transparent text-gray-500 hover:text-primary-500 hover:cursor-pointer',
+                        ]"
+                        @click="form.schedule_type = 'calendar'"
+                    >
+                        📆 カレンダーで設定
                     </button>
                 </div>
 
@@ -114,8 +116,11 @@
 import LabeledInput from "@/components/ui/LabeledInput.vue";
 import CalendarSchedule from "@/pages/admin/Shop/Schedule/CalendarSchedule.vue";
 import WeekdaySchedule from "@/pages/admin/Shop/Schedule/WeekdaySchedule.vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
+import { useShopStore } from "@/stores/shop";
+const shopStore = useShopStore();
+const shop = computed(() => shopStore.shop);
 
 const activeTab = ref("basic");
 
@@ -143,7 +148,7 @@ const submit = async () => {
         if (form.value.id) {
             await axios.put(`/shops/${form.value.id}`, payload);
         } else {
-            const { data } = await axios.post("/shops", payload);
+            const { data } = await axios.post("api/shops", payload);
             form.value.id = data.id;
         }
         alert("保存しました");
@@ -155,17 +160,26 @@ const submit = async () => {
 
 onMounted(async () => {
     try {
-        const { data } = await axios.get("/shops");
+        const { data } = await axios.get("api/shops");
         if (data.length > 0) {
             form.value = {
                 ...data[0],
                 closed_days: data[0].closed_days
                     ? data[0].closed_days.split(",").map(Number)
                     : [],
-                calendar_schedule: data[0].calendar_schedule
-                    ? JSON.parse(data[0].calendar_schedule)
-                    : [],
+                calendar_schedule: {},
             };
+            if (data[0].schedules) {
+                data[0].schedules.forEach((s) => {
+                    if (!form.value.calendar_schedule[s.date]) {
+                        form.value.calendar_schedule[s.date] = [];
+                    }
+                    form.value.calendar_schedule[s.date].push({
+                        start: s.open_time,
+                        end: s.close_time,
+                    });
+                });
+            }
         }
     } catch (e) {
         console.error("店舗情報の取得に失敗しました", e);
