@@ -24,7 +24,7 @@
                 ← 前の月
             </button>
             <h2 class="text-xl font-bold">
-                {{ currentYear }}年 {{ currentMonth + 1 }}月 のスケジュール
+                {{ currentYear }}年 {{ currentMonth + 1 }}月 の営業スケジュール
             </h2>
             <button
                 @click="nextMonth"
@@ -39,7 +39,7 @@
                 v-for="day in daysInMonth"
                 :key="day"
                 @click="day && !isPastDay(day) && openModal(day)"
-                class="p-3 border min-h-24 rounded"
+                class="p-2 border min-h-24 rounded"
                 :class="[
                     day === null
                         ? 'bg-gray-200 cursor-default'
@@ -51,9 +51,16 @@
                 <div class="font-bold">{{ day }}</div>
                 <div
                     v-if="schedule[formatDate(day)]?.length"
-                    class="text-xs text-green-600 mt-1"
+                    class="mt-1 space-y-1"
                 >
-                    {{ schedule[formatDate(day)].length }} 件登録済
+                    <div
+                        v-for="(slot, idx) in schedule[formatDate(day)]"
+                        :key="idx"
+                        class="text-xs text-white bg-primary-300 px-2 py-1 rounded-md shadow-sm text-center whitespace-nowrap min-w-[80px] mx-auto"
+                    >
+                        {{ slot.start.slice(0, 5) }} -
+                        {{ slot.end.slice(0, 5) }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -115,7 +122,8 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, onMounted } from "vue";
+import axios from "axios";
 
 const props = defineProps({
     modelValue: {
@@ -123,7 +131,21 @@ const props = defineProps({
         default: () => ({}),
     },
 });
-
+onMounted(async () => {
+    try {
+        const res = await axios.get("/api/shop/shop-schedules");
+        console.log("スケジュール取得成功", res.data);
+        if (res.data && typeof res.data === "object") {
+            schedule.value = res.data;
+        } else {
+            schedule.value = {}; // fallback
+            console.warn("スケジュール形式が不正のため、空に設定しました。");
+        }
+    } catch (error) {
+        console.error("スケジュールの取得に失敗しました", error);
+        schedule.value = {}; // fallback
+    }
+});
 const emit = defineEmits(["update:modelValue"]);
 
 const schedule = ref({});
@@ -205,10 +227,27 @@ const removeTime = (index) => {
     selectedSchedule.value.splice(index, 1);
 };
 
-const saveSchedule = () => {
-    schedule.value[formatDate(selectedDay.value)] =
-        selectedSchedule.value.filter((s) => s.start && s.end);
+const saveSchedule = async () => {
+    const date = formatDate(selectedDay.value);
+    const data = selectedSchedule.value.filter((s) => s.start && s.end);
+
+    if (hasOverlap(data)) {
+        alert("時間帯が重複しています。重ならないように修正してください。");
+        return;
+    }
+
+    schedule.value[date] = data;
     emit("update:modelValue", { ...schedule.value });
+
+    try {
+        await axios.post("/api/shop/shop-schedules", {
+            date: date,
+            schedule: data,
+        });
+    } catch (error) {
+        console.error("保存に失敗しました", error);
+    }
+
     closeModal();
 };
 const isPastDay = (day) => {
@@ -218,6 +257,24 @@ const isPastDay = (day) => {
     const date = new Date(currentYear.value, currentMonth.value, day);
     return date < today;
 };
+function hasOverlap(times) {
+    const sorted = times
+        .map((t) => ({
+            start: t.start,
+            end: t.end,
+        }))
+        .sort((a, b) => a.start.localeCompare(b.start));
+
+    for (let i = 0; i < sorted.length - 1; i++) {
+        const curr = sorted[i];
+        const next = sorted[i + 1];
+
+        if (curr.end > next.start) {
+            return true; // 重複あり
+        }
+    }
+    return false;
+}
 </script>
 
 <style scoped></style>

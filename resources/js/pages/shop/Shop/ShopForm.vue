@@ -50,6 +50,14 @@
                 <LabeledInput label="電話番号" v-model="form.phone" />
                 <LabeledInput label="住所" v-model="form.address" />
                 <LabeledInput label="Google Map URL" v-model="form.map_url" />
+                <div class="mt-6 flex justify-end">
+                    <button
+                        @click="submit"
+                        class="btn bg-primary-500 text-white text-lg transition hover:shadow-md"
+                    >
+                        💾 保存する
+                    </button>
+                </div>
             </div>
 
             <!-- 営業日設定 -->
@@ -101,13 +109,6 @@
                 <h2 class="text-2xl font-bold mb-4">👤 スタッフ設定</h2>
                 <!-- スタッフ関連フォームがここに入ります -->
             </div>
-
-            <button
-                @click="submit"
-                class="pt-5 btn bg-primary-500 text-white mt-10 text-lg transition hover:shadow-md"
-            >
-                💾 保存する
-            </button>
         </main>
     </div>
 </template>

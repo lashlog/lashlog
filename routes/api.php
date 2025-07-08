@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\Shop\MenuController;
 use App\Http\Controllers\Api\Shop\ReservationController;
 use App\Http\Controllers\Api\Shop\ShopController;
 use App\Http\Controllers\Api\Shop\ShopScheduleController;
+use App\Http\Controllers\Api\Shop\ShopOpenHourController;
+use App\Http\Controllers\Api\Shop\StaffController;
 use Illuminate\Support\Facades\Log;
 
 
@@ -42,5 +44,11 @@ Route::prefix('shop')->group(function () {
             return auth('shop')->user();
         });
         Route::post('/shop-schedules', [ShopScheduleController::class, 'store']);
+        Route::get('/shop-schedules', [ShopScheduleController::class, 'index']);
+        // 曜日ごとの営業時間を取得・保存
+        Route::get('/shop-open-hours', [ShopOpenHourController::class, 'index']);
+        Route::post('/shop-open-hours', [ShopOpenHourController::class, 'store']);
+        Route::get('/staffs', [StaffController::class, 'index']);
+        Route::delete('/staffs/{id}', [StaffController::class, 'destroy']);
     });
 });

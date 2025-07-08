@@ -18,8 +18,6 @@ class CreateShopSchedulesTable extends Migration
             $table->time('close_time')->nullable();
             $table->boolean('is_closed')->default(false);
             $table->timestamps();
-
-            $table->unique(['shop_id', 'date']); // 同じ店舗・日付で重複しないように
         });
     }
 

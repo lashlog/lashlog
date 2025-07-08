@@ -1,11 +1,20 @@
 import axios from "axios";
 
-// Laravel の API エンドポイント（例: localhost）
-// axios.defaults.baseURL = "http://localhost";
+import router from "@/router"; // routerを使う場合（Vue Routerを設定している前提）
 
-// または Laravel Sail の場合は
 axios.defaults.baseURL = "http://localhost:8000";
-// クッキーやセッション情報を送信する場合は true にする
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common["Accept"] = "application/json";
+
+// 🚨 共通のエラーハンドリング（401対応）
+axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            // セッション切れ → ログイン画面へ
+            router.push("/login");
+        }
+        return Promise.reject(error);
+    }
+);
 export default axios;

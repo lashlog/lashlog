@@ -5,11 +5,32 @@ namespace App\Http\Controllers\Api\Shop;
 use App\Http\Controllers\Controller;
 
 use App\Models\Shop;
+use Illuminate\Container\Attributes\Log;
 use Illuminate\Http\Request;
 
 class ShopScheduleController extends Controller
 {
-    public function index() {}
+    public function index(Request $request)
+    {
+        $shop = auth('shop')->user();
+
+        // 今月 & 来月分を取得（必要に応じて調整）
+        $schedules = $shop->schedules()
+            ->whereDate('date', '>=', now()->startOfMonth())
+            ->get()
+            ->groupBy('date');
+
+        return response()->json(
+            $schedules->map(function ($slots) {
+                return $slots->map(function ($slot) {
+                    return [
+                        'start' => $slot->open_time,
+                        'end' => $slot->close_time,
+                    ];
+                });
+            })
+        );
+    }
 
     public function store(Request $request)
     {
@@ -20,7 +41,7 @@ class ShopScheduleController extends Controller
             'schedule.*.end' => 'required',
         ]);
 
-        $shop = auth()->user()->shop; // または $request->user()->shop など
+        $shop = auth('shop')->user(); // または $request->user()->shop など
         $date = $request->date;
 
         // 既存のスケジュールを削除（上書きのため）
