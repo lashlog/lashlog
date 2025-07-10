@@ -68,7 +68,7 @@ const error = ref("");
 onMounted(async () => {
     await fetchShop();
     if (shopStore.shop) {
-        router.push("/calendar");
+        router.push("/shop/calendar");
     }
 });
 const handleLogin = async () => {

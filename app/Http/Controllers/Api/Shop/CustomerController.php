@@ -10,21 +10,31 @@ class CustomerController extends Controller
 {
     public function index()
     {
-        return Customer::all();
+        $shopId = auth('shop')->id();
+
+        $customers = Customer::where('shop_id', $shopId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($customers);
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required',
-            'phone' => 'nullable',
-            'email' => 'nullable|email',
-            'allergy_notes' => 'nullable',
-            'surgery_notes' => 'nullable',
+        $shopId = auth('shop')->id();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'allergy_notes' => 'nullable|string',
+            'surgery_notes' => 'nullable|string',
         ]);
 
-        $customer = Customer::create($data);
+        $customer = new Customer($validated);
+        $customer->shop_id = $shopId;
+        $customer->save();
 
-        return response()->json($customer, 201);
+        return response()->json(['message' => '顧客を登録しました', 'customer' => $customer]);
     }
 }

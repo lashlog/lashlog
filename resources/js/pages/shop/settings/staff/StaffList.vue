@@ -74,20 +74,21 @@ const staffs = ref([]);
 
 const fetchStaffs = async () => {
     const res = await axios.get("/api/shop/staffs");
+    console.log(res.data);
     staffs.value = res.data;
 };
 
 const goToCreate = () => {
-    router.push("/staffs/create");
+    router.push("/shop/settings/staffs/create");
 };
 
 const editStaff = (id) => {
-    router.push(`/staffs/${id}/edit`);
+    router.push(`/shop/settings/staffs/${id}/edit`);
 };
 
 const deleteStaff = async (id) => {
     if (confirm("本当に削除しますか？")) {
-        await axios.delete(`/api/staffs/${id}`);
+        await axios.delete(`/api/shop/staffs/${id}`);
         await fetchStaffs();
     }
 };

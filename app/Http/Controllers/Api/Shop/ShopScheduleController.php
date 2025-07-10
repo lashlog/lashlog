@@ -22,12 +22,19 @@ class ShopScheduleController extends Controller
 
         return response()->json(
             $schedules->map(function ($slots) {
-                return $slots->map(function ($slot) {
-                    return [
-                        'start' => $slot->open_time,
-                        'end' => $slot->close_time,
-                    ];
-                });
+                // 休みのフラグが1つでもあれば、その日を「休み」として返す
+                if ($slots->first()->is_closed) {
+                    return ['closed' => true];
+                }
+
+                return [
+                    'schedule' => $slots->map(function ($slot) {
+                        return [
+                            'start' => $slot->open_time,
+                            'end' => $slot->close_time,
+                        ];
+                    }),
+                ];
             })
         );
     }
@@ -36,9 +43,10 @@ class ShopScheduleController extends Controller
     {
         $request->validate([
             'date' => 'required|date',
-            'schedule' => 'required|array',
-            'schedule.*.start' => 'required',
-            'schedule.*.end' => 'required',
+            'schedule' => 'nullable|array',
+            'schedule.*.start' => 'required_with:schedule.*.end',
+            'schedule.*.end' => 'required_with:schedule.*.start',
+            'closed' => 'nullable|boolean',
         ]);
 
         $shop = auth('shop')->user(); // または $request->user()->shop など
@@ -46,14 +54,22 @@ class ShopScheduleController extends Controller
 
         // 既存のスケジュールを削除（上書きのため）
         $shop->schedules()->where('date', $date)->delete();
-
-        foreach ($request->schedule as $slot) {
+        // 休みとして登録
+        if ($request->boolean('closed')) {
             $shop->schedules()->create([
                 'date' => $date,
-                'open_time' => $slot['start'],
-                'close_time' => $slot['end'],
+                'is_closed' => true,
+                'open_time' => null,
+                'close_time' => null,
             ]);
-        }
+        } elseif (is_array($request->schedule))
+            foreach ($request->schedule as $slot) {
+                $shop->schedules()->create([
+                    'date' => $date,
+                    'open_time' => $slot['start'],
+                    'close_time' => $slot['end'],
+                ]);
+            }
 
         return response()->json(['message' => '保存しました']);
     }

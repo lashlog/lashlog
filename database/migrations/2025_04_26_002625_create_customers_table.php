@@ -13,13 +13,27 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->foreignId('shop_id')->constrained()->onDelete('cascade');
-            $table->string('phone')->nullable();
-            $table->string('email')->nullable();
-            $table->text('allergy_notes')->nullable(); // アレルギー内容（ある場合のみ記入）
-            $table->text('surgery_notes')->nullable(); // 手術歴内容（ある場合のみ記入）
-            $table->timestamps();
+
+            // 紐付け
+            $table->foreignId('shop_id')->constrained()->onDelete('cascade'); // 店舗に紐づく
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+
+            // 基本情報
+            $table->string('name');          // 顧客名（フルネーム）
+            $table->string('phone')->nullable(); // 電話番号
+            $table->string('email')->nullable(); // メールアドレス
+
+            // 任意の追加情報
+            $table->date('birthday')->nullable();  // 誕生日（顧客理解のため）
+            // $table->string('sns_account')->nullable(); // LINEやInstagramのID等 後から別テーブル作成して管理予定
+
+            // 健康・施術履歴関連
+            $table->text('allergy_notes')->nullable();   // アレルギー内容（任意記入）
+            $table->text('surgery_notes')->nullable();   // 手術歴（任意記入）
+            $table->text('memo')->nullable();            // その他メモ（髪質、対応履歴など）
+
+            // 管理用
+            $table->timestamps(); // created_at / updated_at
         });
     }
 

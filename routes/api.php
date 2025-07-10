@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Shop\ShopController;
 use App\Http\Controllers\Api\Shop\ShopScheduleController;
 use App\Http\Controllers\Api\Shop\ShopOpenHourController;
 use App\Http\Controllers\Api\Shop\StaffController;
+use App\Http\Controllers\Api\Shop\MenuCategoryController;
 use Illuminate\Support\Facades\Log;
 
 
@@ -36,19 +37,35 @@ Route::prefix('shop')->group(function () {
 
     // 認証済みスタッフ向け
     Route::middleware('auth:sanctum')->group(function () {
-        Route::apiResource('customers', CustomerController::class);
-        Route::apiResource('menus', MenuController::class);
-        Route::apiResource('reservations', ReservationController::class);
-        Route::apiResource('shops', ShopController::class);
         Route::get('/me', function () {
             return auth('shop')->user();
         });
+        // 顧客のCRUD
+        Route::get('/customers', [CustomerController::class, 'index']);
+        Route::post('/customers', [CustomerController::class, 'store']);
+
+
+        Route::apiResource('menus', MenuController::class);
+        Route::apiResource('reservations', ReservationController::class);
+        Route::apiResource('shops', ShopController::class);
+        // スケジュールのCRUD
         Route::post('/shop-schedules', [ShopScheduleController::class, 'store']);
         Route::get('/shop-schedules', [ShopScheduleController::class, 'index']);
         // 曜日ごとの営業時間を取得・保存
         Route::get('/shop-open-hours', [ShopOpenHourController::class, 'index']);
         Route::post('/shop-open-hours', [ShopOpenHourController::class, 'store']);
-        Route::get('/staffs', [StaffController::class, 'index']);
-        Route::delete('/staffs/{id}', [StaffController::class, 'destroy']);
+        // スタッフのCRUD
+        Route::get('staffs', [StaffController::class, 'index']);
+        Route::post('staffs', [StaffController::class, 'store']);
+        Route::get('staffs/{id}', [StaffController::class, 'show']);
+        Route::patch('staffs/{id}', [StaffController::class, 'update']);
+        Route::delete('staffs/{id}', [StaffController::class, 'destroy']);
+        // メニューのCRUD
+        Route::get('/menus', [MenuController::class, 'index']);
+        Route::post('/menus', [MenuController::class, 'store']);
+        Route::put('/menus/{id}', [MenuController::class, 'update']);
+        Route::delete('/menus/{id}', [MenuController::class, 'destroy']);
+        // メニューカテゴリーのCRUD
+        Route::get('/menu-categories', [MenuCategoryController::class, 'index']);
     });
 });

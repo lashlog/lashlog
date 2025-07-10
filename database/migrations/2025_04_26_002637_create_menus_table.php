@@ -16,13 +16,17 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('shop_id')->constrained()->onDelete('cascade');
 
-            $table->string('category'); // enumで対応してもOK
+            $table->foreignId('menu_category_id')->constrained()->onDelete('cascade');
             $table->string('unit')->nullable(); // 例：120本
             $table->integer('price');
             $table->integer('duration_minutes');
             $table->boolean('is_active')->default(true);
+            $table->text('description')->nullable();
             $table->integer('sort_order')->default(0);
             $table->timestamps();
+            $table->index('shop_id');
+            $table->index('is_active');
+            $table->unique(['shop_id', 'name']);
         });
     }
 

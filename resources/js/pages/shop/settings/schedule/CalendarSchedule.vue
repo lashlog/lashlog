@@ -1,20 +1,4 @@
 <template>
-    <div class="relative mb-10">
-        <div
-            class="text-xs mt-1 right-8 px-2 py-1 bg-white rounded absolute"
-            :class="
-                schedule[formatDate(day)]?.length
-                    ? 'text-green-600'
-                    : 'text-gray-400'
-            "
-        >
-            {{
-                schedule[formatDate(day)]?.length
-                    ? `${schedule[formatDate(day)].length} 件登録済`
-                    : "登録なし"
-            }}
-        </div>
-    </div>
     <div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow">
         <div class="flex items-center justify-between mb-4">
             <button
@@ -49,18 +33,30 @@
                 ]"
             >
                 <div class="font-bold">{{ day }}</div>
+
                 <div
-                    v-if="schedule[formatDate(day)]?.length"
+                    v-if="schedule[formatDate(day)]?.schedule?.length"
                     class="mt-1 space-y-1"
                 >
                     <div
-                        v-for="(slot, idx) in schedule[formatDate(day)]"
+                        v-for="(slot, idx) in schedule[formatDate(day)]
+                            ?.schedule"
                         :key="idx"
                         class="text-xs text-white bg-primary-300 px-2 py-1 rounded-md shadow-sm text-center whitespace-nowrap min-w-[80px] mx-auto"
                     >
                         {{ slot.start.slice(0, 5) }} -
                         {{ slot.end.slice(0, 5) }}
                     </div>
+                </div>
+                <div
+                    v-if="schedule[formatDate(day)]?.closed"
+                    class="mt-1 text-center"
+                >
+                    <span
+                        class="inline-block text-xl text-red-500 bg-red-100 rounded-full px-2 py-0.5"
+                    >
+                        休
+                    </span>
                 </div>
             </div>
         </div>
@@ -74,33 +70,44 @@
                 <h3 class="text-lg font-bold mb-4">
                     {{ selectedDate }}のスケジュール
                 </h3>
-
-                <div
-                    v-for="(item, index) in selectedSchedule"
-                    :key="index"
-                    class="flex items-center gap-2 mb-2"
-                >
-                    <input
-                        type="time"
-                        v-model="item.start"
-                        class="px-2 py-1 border rounded w-full"
-                    />
-                    <input
-                        type="time"
-                        v-model="item.end"
-                        class="px-2 py-1 border rounded w-full"
-                    />
-                    <button
-                        @click="removeTime(index)"
-                        class="text-red-500 text-sm"
+                <div class="mb-4">
+                    <label class="inline-flex items-center">
+                        <input
+                            type="checkbox"
+                            v-model="selectedIsClosed"
+                            class="mr-2"
+                        />
+                        この日は休みにする
+                    </label>
+                </div>
+                <div v-if="!selectedIsClosed">
+                    <div
+                        v-for="(item, index) in selectedSchedule"
+                        :key="index"
+                        class="flex items-center gap-2 mb-2"
                     >
-                        削除
+                        <input
+                            type="time"
+                            v-model="item.start"
+                            class="px-2 py-1 border rounded w-full"
+                        />
+                        <input
+                            type="time"
+                            v-model="item.end"
+                            class="px-2 py-1 border rounded w-full"
+                        />
+                        <button
+                            @click="removeTime(index)"
+                            class="text-red-500 text-sm"
+                        >
+                            削除
+                        </button>
+                    </div>
+
+                    <button @click="addTime" class="text-blue-600 text-sm mb-4">
+                        ＋時間帯を追加
                     </button>
                 </div>
-
-                <button @click="addTime" class="text-blue-600 text-sm mb-4">
-                    ＋時間帯を追加
-                </button>
 
                 <div class="flex justify-end gap-2">
                     <button
@@ -131,6 +138,7 @@ const props = defineProps({
         default: () => ({}),
     },
 });
+const selectedIsClosed = ref(false);
 onMounted(async () => {
     try {
         const res = await axios.get("/api/shop/shop-schedules");
@@ -206,10 +214,16 @@ const selectedDate = computed(() =>
 const selectedSchedule = ref([]);
 
 const openModal = (day) => {
+    const date = formatDate(day);
+    const info = schedule.value[date] || [];
     selectedDay.value = day;
-    selectedSchedule.value = Array.isArray(schedule.value[formatDate(day)])
-        ? [...schedule.value[formatDate(day)]]
+    selectedSchedule.value = Array.isArray(info)
+        ? [...info]
+        : Array.isArray(info.schedule)
+        ? [...info.schedule]
         : [];
+
+    selectedIsClosed.value = !!info.closed;
     isModalOpen.value = true;
 };
 
@@ -231,18 +245,22 @@ const saveSchedule = async () => {
     const date = formatDate(selectedDay.value);
     const data = selectedSchedule.value.filter((s) => s.start && s.end);
 
-    if (hasOverlap(data)) {
+    // ✅ 重複チェック（休みならスキップ）
+    if (!selectedIsClosed.value && hasOverlap(data)) {
         alert("時間帯が重複しています。重ならないように修正してください。");
         return;
     }
-
-    schedule.value[date] = data;
+    // ✅ ローカルデータ更新
+    schedule.value[date] = selectedIsClosed.value
+        ? { closed: true }
+        : { schedule: data };
     emit("update:modelValue", { ...schedule.value });
 
     try {
         await axios.post("/api/shop/shop-schedules", {
             date: date,
             schedule: data,
+            closed: selectedIsClosed.value,
         });
     } catch (error) {
         console.error("保存に失敗しました", error);

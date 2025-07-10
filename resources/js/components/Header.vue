@@ -8,51 +8,32 @@
             <div class="flex items-center space-x-6">
                 <nav class="flex space-x-4" v-if="shop">
                     <RouterLink
-                        to="/calendar"
+                        to="/shop/calendar"
                         class="hover:underline"
                         :class="{
                             'font-bold underline text-primary-300':
-                                isActive('/calendar'),
+                                isActive('/shop/calendar'),
                         }"
                         >📅 カレンダー</RouterLink
                     >
 
                     <RouterLink
-                        to="/shops"
+                        to="/shop/settings/shops"
                         class="hover:underline"
                         :class="{
-                            'font-bold underline text-primary-300':
-                                isActive('/shops'),
+                            'font-bold underline text-primary-300': isActive(
+                                '/shop/settings/shops'
+                            ),
                         }"
                         >設定</RouterLink
                     >
 
                     <RouterLink
-                        to="/staffs"
+                        to="/shop/customers"
                         class="hover:underline"
                         :class="{
                             'font-bold underline text-primary-300':
-                                isActive('/staffs'),
-                        }"
-                        >👩‍💼 スタッフ</RouterLink
-                    >
-
-                    <RouterLink
-                        to="/menus"
-                        class="hover:underline"
-                        :class="{
-                            'font-bold underline text-primary-300':
-                                isActive('/menus'),
-                        }"
-                        >📋 メニュー</RouterLink
-                    >
-
-                    <RouterLink
-                        to="/customers"
-                        class="hover:underline"
-                        :class="{
-                            'font-bold underline text-primary-300':
-                                isActive('/customers'),
+                                isActive('/shop/customers'),
                         }"
                         >👤 顧客</RouterLink
                     >
