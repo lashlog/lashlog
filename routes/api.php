@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Shop\ShopScheduleController;
 use App\Http\Controllers\Api\Shop\ShopOpenHourController;
 use App\Http\Controllers\Api\Shop\StaffController;
 use App\Http\Controllers\Api\Shop\MenuCategoryController;
+use App\Http\Controllers\Api\Shop\ReservationSourceController;
 use Illuminate\Support\Facades\Log;
 
 
@@ -43,10 +44,20 @@ Route::prefix('shop')->group(function () {
         // 顧客のCRUD
         Route::get('/customers', [CustomerController::class, 'index']);
         Route::post('/customers', [CustomerController::class, 'store']);
-
-
-        Route::apiResource('menus', MenuController::class);
-        Route::apiResource('reservations', ReservationController::class);
+        Route::get('customers/{id}', [CustomerController::class, 'show']);
+        Route::patch('customers/{id}', [CustomerController::class, 'update']);
+        // 予約元媒体のCRUD
+        Route::get('/reservation-sources', [ReservationSourceController::class, 'index']);
+        Route::post('/reservation-sources', [ReservationSourceController::class, 'store']);
+        Route::get('/reservation-sources/{id}', [ReservationSourceController::class, 'show']);
+        Route::put('/reservation-sources/{id}', [ReservationSourceController::class, 'update']);
+        Route::delete('/reservation-sources/{id}', [ReservationSourceController::class, 'destroy']);
+        // 予約の取得・登録など（/api/shop/reservations）
+        Route::get('reservations', [ReservationController::class, 'index']);
+        Route::post('reservations', [ReservationController::class, 'store']);
+        Route::get('reservations/{id}', [ReservationController::class, 'show']);
+        Route::put('reservations/{id}', [ReservationController::class, 'update']);
+        Route::delete('reservations/{id}', [ReservationController::class, 'destroy']);
         Route::apiResource('shops', ShopController::class);
         // スケジュールのCRUD
         Route::post('/shop-schedules', [ShopScheduleController::class, 'store']);
@@ -67,5 +78,7 @@ Route::prefix('shop')->group(function () {
         Route::delete('/menus/{id}', [MenuController::class, 'destroy']);
         // メニューカテゴリーのCRUD
         Route::get('/menu-categories', [MenuCategoryController::class, 'index']);
+
+        Route::get('/business-hours', [ShopController::class, 'getBusinessHours']);
     });
 });

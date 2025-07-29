@@ -21,8 +21,8 @@ const shopStore = useShopStore();
 watch(
     () => shopStore.shop,
     (newVal) => {
-        if (!newVal && router.currentRoute.value.path !== "/login") {
-            router.push("/login");
+        if (!newVal && router.currentRoute.value.path !== "/shop/login") {
+            router.push("/shop/login");
         }
     },
     { immediate: true }

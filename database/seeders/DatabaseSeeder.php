@@ -20,6 +20,9 @@ class DatabaseSeeder extends Seeder
             ShopSeeder::class,
             StaffSeeder::class,
             MenuCategorySeeder::class,
+            MenuSeeder::class,
+            CustomerSeeder::class,
+            // ReservationSeeder::class,
         ]);
     }
 }

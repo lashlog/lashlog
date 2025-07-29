@@ -37,4 +37,16 @@ class CustomerController extends Controller
 
         return response()->json(['message' => '顧客を登録しました', 'customer' => $customer]);
     }
+    public function show($id)
+    {
+        $customer = Customer::where('shop_id', auth('shop')->id())->findOrFail($id);
+        return response()->json($customer);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $customer = Customer::where('shop_id', auth('shop')->id())->findOrFail($id);
+        $customer->update($request->all());
+        return response()->json($customer);
+    }
 }

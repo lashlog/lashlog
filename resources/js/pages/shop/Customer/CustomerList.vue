@@ -21,6 +21,7 @@
                         <th class="px-4 py-2 border-b">電話番号</th>
                         <th class="px-4 py-2 border-b">メールアドレス</th>
                         <th class="px-4 py-2 border-b">登録日</th>
+                        <th class="px-4 py-2 border-b">操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,6 +35,17 @@
                         <td class="px-4 py-2">{{ customer.email || "-" }}</td>
                         <td class="px-4 py-2">
                             {{ formatDate(customer.created_at) }}
+                        </td>
+                        <td class="px-4 py-2">
+                            <RouterLink
+                                :to="{
+                                    name: 'shop.customer.edit',
+                                    params: { id: customer.id },
+                                }"
+                                class="text-primary-500 underline"
+                            >
+                                編集
+                            </RouterLink>
                         </td>
                     </tr>
                 </tbody>

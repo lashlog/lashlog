@@ -8,6 +8,7 @@ const navItems = [
     { to: "/shop/settings/staffs", label: "スタッフ管理" },
     { to: "/shop/settings/schedules", label: "営業日設定" },
     { to: "/shop/settings/menus", label: "メニュー管理" },
+    { to: "/shop/settings/reservation-sources", label: "予約元管理" },
 ];
 
 const isActive = (path) => {

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 // 機能ごとのページを分かりやすくインポート
+import ReservationPage from "../pages/shop/reservation/ReservationPage.vue";
 import CalendarView from "../pages/shop/reservation/CalendarView.vue";
 import SettingsLayout from "../pages/shop/settings/SettingsLayout.vue";
 import StaffList from "../pages/shop/settings/staff/StaffList.vue";
@@ -10,6 +11,9 @@ import MenuCreate from "../pages/shop/settings/menu/MenuCreate.vue";
 import MenuEdit from "../pages/shop/settings/menu/MenuEdit.vue";
 import CustomerList from "../pages/shop/customer/CustomerList.vue";
 import Schedule from "../pages/shop/settings/schedule/Schedule.vue";
+import ReservationSourceCreate from "../pages/shop/settings/reservation_source/ReservationSourceCreate.vue";
+import ReservationSourceEdit from "../pages/shop/settings/reservation_source/ReservationSourceEdit.vue";
+import ReservationSourceList from "../pages/shop/settings/reservation_source/ReservationSourceList.vue";
 
 import Login from "../pages/shop/auth/Login.vue";
 import { useShopAuth } from "../composables/useShopAuth";
@@ -19,19 +23,26 @@ const routes = [
     { path: "/shop/login", component: Login },
     {
         path: "/shop/calendar",
-        component: CalendarView,
+        component: ReservationPage,
         meta: { requiresAuth: true },
     },
 
     {
         path: "/shop/customers",
+        name: "shop.customer.index",
         component: CustomerList,
         meta: { requiresAuth: true },
     },
     {
-        path: "/customers/create",
+        path: "/shop/customers/create",
         name: "shop.customer.create",
         component: () => import("../pages/shop/customer/CustomerCreate.vue"),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: "/shop/customers/:id/edit",
+        name: "shop.customer.edit",
+        component: () => import("../pages/shop/customer/CustomerEdit.vue"),
         meta: { requiresAuth: true },
     },
     // ✅ 設定系をグループ化
@@ -44,43 +55,69 @@ const routes = [
                 path: "shops",
                 component: ShopForm,
                 meta: { requiresAuth: true },
+                name: "shop.settings.shops",
             },
             {
                 path: "staffs",
                 component: StaffList,
                 meta: { requiresAuth: true },
+                name: "shop.settings.staff.index",
             },
             {
                 path: "staffs/create", // ← これを追加
                 component: () =>
                     import("../pages/shop/settings/staff/StaffCreate.vue"),
                 meta: { requiresAuth: true },
+                name: "shop.settings.staff.create",
             },
             {
                 path: "staffs/:id/edit",
                 component: () =>
                     import("../pages/shop/settings/staff/StaffEdit.vue"),
                 meta: { requiresAuth: true },
+                name: "shop.settings.staff.edit",
             },
             {
                 path: "menus",
                 component: MenuList,
                 meta: { requiresAuth: true },
+                name: "shop.settings.menu.index",
             },
             {
                 path: "menus/create",
                 component: MenuCreate,
                 meta: { requiresAuth: true },
+                name: "shop.settings.menu.create",
             },
             {
                 path: "menus/:id/edit",
                 component: MenuEdit,
                 meta: { requiresAuth: true },
+                name: "shop.settings.menu.edit",
             },
             {
                 path: "schedules",
                 component: Schedule,
                 meta: { requiresAuth: true },
+                name: "shop.settings.schedule",
+            },
+            {
+                path: "reservation-sources",
+                component: ReservationSourceList,
+                meta: { requiresAuth: true },
+                name: "shop.settings.reservation_sources",
+            },
+            {
+                path: "reservation-sources/:id/edit",
+                component: ReservationSourceEdit,
+                meta: { requiresAuth: true },
+                name: "shop.settings.reservation_sources.edit",
+            },
+            {
+                path: "reservation-sources/create",
+                component: ReservationSourceCreate,
+                meta: { requiresAuth: true },
+                name: "shop.settings.reservation_sources.create",
             },
         ],
     },
@@ -94,6 +131,8 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
     const shopStore = useShopStore();
     const { fetchShop } = useShopAuth();
+    console.log("ルート遷移:", to.path);
+
     if (to.meta.requiresAuth === true) {
         if (shopStore.shop === null) {
             try {
@@ -103,12 +142,11 @@ router.beforeEach(async (to, from, next) => {
             }
         }
         if (!shopStore.shop) {
-            return next("/login");
+            return next("/shop/login");
         }
     }
-
-    if (to.path === "/login" && shopStore.shop) {
-        return next("/calendar");
+    if (to.path === "/shop/login" && shopStore.shop) {
+        return next("/shop/calendar");
     }
 
     next();

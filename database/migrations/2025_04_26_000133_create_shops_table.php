@@ -24,6 +24,9 @@ return new class extends Migration
             $table->time('weekend_open_time')->nullable();
             $table->time('weekend_close_time')->nullable();
             $table->string('closed_days')->nullable(); // 例: "1,3,7"
+            $table->string('instagram_url')->nullable();
+            $table->string('line_liff_url')->nullable();
+            $table->integer('slot_minutes')->default(30); // 15, 30, 60 など
             $table->timestamps();
         });
     }

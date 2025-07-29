@@ -3,7 +3,11 @@
 namespace Database\Factories;
 
 use App\Models\Reservation;
+use App\Models\Staff;
+use App\Models\Customer;
+use App\Models\Menu;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 
 class ReservationFactory extends Factory
 {
@@ -11,33 +15,53 @@ class ReservationFactory extends Factory
 
     public function definition(): array
     {
-        // 9:00 〜 17:00 の範囲で30分単位で開始
-        $startHour = $this->faker->numberBetween(9, 16);
-        $startMinute = $this->faker->randomElement([0, 30]);
-        $duration = $this->faker->randomElement([30, 60, 90]); // 分単位
+        $shopId = 1;
+        $staff = Staff::inRandomOrder()->first();
+        $staffId = $staff?->id ?? 1;
+        $customerId = Customer::inRandomOrder()->first()?->id ?? 1;
+        $menuId = Menu::inRandomOrder()->first()?->id ?? 1;
 
-        $startTime = sprintf('%02d:%02d', $startHour, $startMinute);
-        $startMinutes = $startHour * 60 + $startMinute;
-        $endMinutes = $startMinutes + $duration;
+        // 営業時間とスロット
+        $slots = $this->generateTimeSlots('09:00', '17:00'); // 30分単位
+        $used = Reservation::where('staff_id', $staffId)->pluck('start_time')->toArray();
 
-        // 18:00を超えないよう調整
-        if ($endMinutes > 18 * 60) {
-            $endMinutes = 18 * 60;
-            $startMinutes = $endMinutes - $duration;
-            $startTime = sprintf('%02d:%02d', intdiv($startMinutes, 60), $startMinutes % 60);
+        // 未使用スロットを探す
+        $availableSlots = array_filter($slots, fn($slot) => !in_array($slot, $used));
+
+        if (empty($availableSlots)) {
+            // 空きスロットがない場合は 9:00 に固定（テスト目的）
+            $start = Carbon::today()->setTime(9, 0);
+        } else {
+            $startStr = $this->faker->randomElement($availableSlots);
+            $start = Carbon::today()->setTimeFromTimeString($startStr);
         }
 
-        $endTime = sprintf('%02d:%02d', intdiv($endMinutes, 60), $endMinutes % 60);
+        $duration = 30;
+        $end = (clone $start)->addMinutes($duration);
 
         return [
-            'customer_id' => rand(1, 10),
-            'menu_id' => rand(1, 5),
-            'staff_id' => rand(1, 3),
-            'reserved_date' => $this->faker->date(),
-            'start_time' => $startTime,
-            'end_time' => $endTime,
-            'duration_minutes' => $duration,
-            'memo' => $this->faker->sentence,
+            'shop_id' => $shopId,
+            'staff_id' => $staffId,
+            'customer_id' => $customerId,
+            'menu_id' => $menuId,
+            'reserved_date' => $start->format('Y-m-d'),
+            'start_time' => $start->format('H:i'),
+            'end_time' => $end->format('H:i'),
+            'memo' => $this->faker->realText(20),
         ];
+    }
+
+    private function generateTimeSlots(string $start = '09:00', string $end = '17:00', int $interval = 30): array
+    {
+        $slots = [];
+        $start = Carbon::createFromTimeString($start);
+        $end = Carbon::createFromTimeString($end);
+
+        while ($start < $end) {
+            $slots[] = $start->format('H:i');
+            $start->addMinutes($interval);
+        }
+
+        return $slots;
     }
 }

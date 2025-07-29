@@ -76,7 +76,7 @@ const handleLogin = async () => {
     try {
         await axios.get("api/sanctum/csrf-cookie", { withCredentials: true });
         await axios.post(
-            "api/shop/login",
+            "/api/shop/login",
             {
                 email: email.value,
                 password: password.value,
@@ -85,7 +85,7 @@ const handleLogin = async () => {
         );
         // await axios.get("/api/shop/me", { withCredentials: true });
         await fetchShop(); // 👈 ログイン後にショップ情報を再取得
-        router.push("/calendar");
+        router.push("/shop/calendar");
     } catch {
         error.value =
             "ログインに失敗しました。メールアドレスまたはパスワードをご確認ください。";

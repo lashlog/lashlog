@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Shop;
 use Illuminate\Http\Request;
+use App\Models\ShopSchedule;
+use App\Models\ShopOpenHour;
+use Illuminate\Support\Carbon;
 
 class ShopController extends Controller
 {
@@ -60,5 +63,32 @@ class ShopController extends Controller
             'weekend_close_time' => 'nullable',
             'closed_days' => 'nullable|string',
         ]);
+    }
+    public function getBusinessHours(Carbon $date, $shopId)
+    {
+        $schedule = ShopSchedule::where('shop_id', $shopId)
+            ->where('date', $date->format('Y-m-d'))
+            ->first();
+
+        if ($schedule) {
+            return [
+                'is_closed' => $schedule->is_closed,
+                'open_time' => $schedule->open_time,
+                'close_time' => $schedule->close_time,
+                'date' => $date->format('Y-m-d'),
+            ];
+        }
+
+        $dayOfWeek = $date->dayOfWeek; // 0〜6
+        $default = ShopOpenHour::where('shop_id', $shopId)
+            ->where('day_of_week', $dayOfWeek)
+            ->first();
+
+        return [
+            'is_closed' => $default->is_closed ?? true,
+            'open_time' => $default->open_time,
+            'close_time' => $default->close_time,
+            'date' => $date->format('Y-m-d'),
+        ];
     }
 }

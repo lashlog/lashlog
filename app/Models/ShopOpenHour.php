@@ -14,4 +14,9 @@ class ShopOpenHour extends Model
     {
         return $this->belongsTo(Shop::class);
     }
+    public function isOpen()
+    {
+        // ここでは、営業時間が開いているかどうかを判定するロジックを実装します
+        return !$this->is_closed;
+    }
 }

@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Shop;
 use Illuminate\Container\Attributes\Log;
 use Illuminate\Http\Request;
+use App\Models\ShopSchedule;
+use App\Models\ShopOpenHour;
 
 class ShopScheduleController extends Controller
 {
@@ -84,5 +86,35 @@ class ShopScheduleController extends Controller
         return response()->json(['message' => '削除しました']);
     }
 
+    public function getOpenHour($date)
+    {
+        $shopId = auth('shop')->user()->shop_id;
+
+        $schedule = ShopSchedule::where('shop_id', $shopId)
+            ->where('date', $date)
+            ->first();
+
+        if ($schedule) {
+            return response()->json([
+                'open_time' => $schedule->open_time,
+                'close_time' => $schedule->close_time,
+                'is_closed' => $schedule->is_closed,
+                'source' => 'date', // debug用
+            ]);
+        }
+
+        $dayOfWeek = \Carbon\Carbon::parse($date)->dayOfWeek; // 0(日)〜6(土)
+
+        $default = ShopOpenHour::where('shop_id', $shopId)
+            ->where('day_of_week', $dayOfWeek)
+            ->first();
+
+        return response()->json([
+            'open_time' => $default?->open_time,
+            'close_time' => $default?->close_time,
+            'is_closed' => $default?->is_closed ?? true,
+            'source' => 'weekday', // debug用
+        ]);
+    }
     private function validateData(Request $request) {}
 }

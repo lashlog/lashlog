@@ -9,24 +9,24 @@ export function useShopAuth(router?: Router) {
     const login = async (email: string, password: string) => {
         await axios.get("/sanctum/csrf-cookie", { withCredentials: true });
         await axios.post(
-            "api/shop/login",
+            "/api/shop/login",
             { email, password },
             { withCredentials: true }
         );
-        const res = await axios.get("api/shop/me", { withCredentials: true });
+        const res = await axios.get("/api/shop/me", { withCredentials: true });
         shopStore.setShop(res.data);
     };
 
     const logout = async () => {
-        await axios.post("api/shop/logout", {}, { withCredentials: true });
+        await axios.post("/api/shop/logout", {}, { withCredentials: true });
         shopStore.clearShop();
         if (router) {
-            router.push("/login");
+            router.push("/shop/login");
         }
     };
     const fetchShop = async () => {
         try {
-            const res = await axios.get("api/shop/me", {
+            const res = await axios.get("/api/shop/me", {
                 withCredentials: true,
             });
             console.log("Fetched shop:", res.data);

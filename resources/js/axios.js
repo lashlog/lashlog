@@ -14,7 +14,7 @@ axios.interceptors.response.use(
             const shopStore = useShopStore(); // ✅ ストア取得
             shopStore.shop = null;
             // セッション切れ → ログイン画面へ
-            router.push("/login");
+            router.push("/shop/login");
         }
         return Promise.reject(error);
     }
