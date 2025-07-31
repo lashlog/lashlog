@@ -33,11 +33,13 @@
 
         <!-- カレンダー本体 -->
         <CalendarGrid
+            v-model:slots="slots"
             :viewMode="viewMode"
-            :date="currentDate"
+            :date="props.currentDate"
             :staffList="staffList"
             :reservations="reservations"
             :slotMinutes="shop.slotMinutes"
+            :businessHours="businessHours"
             @edit-reservation="$emit('edit-reservation', $event)"
             @create-reservation="$emit('create-reservation', $event)"
         />
@@ -52,21 +54,26 @@ import CalendarGrid from "./CalendarGrid.vue";
 import { useShopStore } from "@/stores/shop";
 const shopStore = useShopStore();
 const shop = computed(() => shopStore.shop);
-const emit = defineEmits(["update:date"]);
-const currentDate = ref(new Date());
 const viewMode = ref("day");
 const slotMinutes = ref(30); // 基本設定から取得した値など
 const selectedReservation = ref(null); // モーダル用の選択中データ
+const slots = ref([]);
+const emit = defineEmits(["update:date", "update:slots"]);
+watch(slots, (newVal) => {
+    emit("update:slots", newVal);
+});
 const props = defineProps({
     reservations: Array,
     staffList: Array,
+    businessHours: Array, // 営業時間情報
+    currentDate: String,
 });
-watch(currentDate, (newVal) => {
+watch(props.currentDate, (newVal) => {
     emit("update:date", dayjs(newVal).format("YYYY-MM-DD"));
 });
 const reservations = computed(() => props.reservations);
 const formattedDate = computed(() => {
-    return currentDate.value.toLocaleDateString("ja-JP", {
+    return new Date(props.currentDate).toLocaleDateString("ja-JP", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -79,11 +86,13 @@ const goToToday = () => {
 };
 const goToPrev = () => {
     const delta = viewMode.value === "week" ? -7 : -1;
-    currentDate.value = dayjs(currentDate.value).add(delta, "day").toDate();
+    const newDate = dayjs(props.currentDate).add(delta, "day").toDate();
+    emit("update:date", newDate);
 };
 const goToNext = () => {
     const delta = viewMode.value === "week" ? 7 : 1;
-    currentDate.value = dayjs(currentDate.value).add(delta, "day").toDate();
+    const newDate = dayjs(props.currentDate).add(delta, "day").toDate();
+    emit("update:date", newDate);
 };
 
 const changeViewMode = (mode) => {

@@ -8,7 +8,9 @@ use App\Models\Shop;
 use Illuminate\Http\Request;
 use App\Models\ShopSchedule;
 use App\Models\ShopOpenHour;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Carbon;
+
 
 class ShopController extends Controller
 {
@@ -64,31 +66,36 @@ class ShopController extends Controller
             'closed_days' => 'nullable|string',
         ]);
     }
-    public function getBusinessHours(Carbon $date, $shopId)
+    public function getBusinessHours(Request $request)
     {
-        $schedule = ShopSchedule::where('shop_id', $shopId)
-            ->where('date', $date->format('Y-m-d'))
-            ->first();
-
-        if ($schedule) {
-            return [
-                'is_closed' => $schedule->is_closed,
-                'open_time' => $schedule->open_time,
-                'close_time' => $schedule->close_time,
-                'date' => $date->format('Y-m-d'),
-            ];
+        // dd($date);
+        $dateStr = $request->query('date');
+        Log::info('getBusinessHours called', ['date' => $dateStr]);
+        $shopId = auth('shop')->id();
+        $schedules = ShopSchedule::where('shop_id', $shopId)
+            ->where('date', $dateStr)
+            ->get();
+        if ($schedules->isNotEmpty()) {
+            return response()->json($schedules->map(function ($s) use ($dateStr) {
+                return [
+                    'is_closed' => $s->is_closed,
+                    'open_time' => $s->open_time,
+                    'close_time' => $s->close_time,
+                    'date' => $dateStr,
+                ];
+            }));
         }
 
-        $dayOfWeek = $date->dayOfWeek; // 0〜6
+        $dayOfWeek = Carbon::parse($dateStr)->dayOfWeek; // 0〜6
         $default = ShopOpenHour::where('shop_id', $shopId)
             ->where('day_of_week', $dayOfWeek)
             ->first();
 
-        return [
-            'is_closed' => $default->is_closed ?? true,
-            'open_time' => $default->open_time,
-            'close_time' => $default->close_time,
-            'date' => $date->format('Y-m-d'),
-        ];
+        return response()->json([[
+            'is_closed' => $default?->is_closed ?? true,
+            'open_time' => $default?->open_time,
+            'close_time' => $default?->close_time,
+            'date' => $dateStr,
+        ]]);
     }
 }

@@ -6,6 +6,9 @@ use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreReservationWithCustomerRequest;
+use App\UseCases\Reservation\StoreReservationUseCase;
+use App\UseCases\Reservation\StoreReservationWithCustomerUseCase;
 
 class ReservationController extends Controller
 {
@@ -21,39 +24,19 @@ class ReservationController extends Controller
         $query->where('shop_id', auth('shop')->user()->id);
         return $query->get();
     }
-    public function store(Request $request)
+
+    public function store(Request $request, StoreReservationUseCase $useCase)
     {
-        $request->merge([
-            'shop_id' => auth('shop')->user()->id,
-        ]);
+        $reservation = $useCase->execute($request);
+        return response()->json($reservation);
+    }
 
-        $validated = $request->validate([
-            'reserved_date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'staff_id' => 'required|exists:staffs,id',
-            'customer_id' => 'nullable|exists:customers,id',
-            'menu_id' => 'required|exists:menus,id',
-            'memo' => 'nullable|string',
-            'shop_id' => 'required|exists:shops,id',
-        ]);
-        // 予約の重複チェック
-        $conflict = Reservation::where('staff_id', $validated['staff_id'])
-            ->where('reserved_date', $validated['reserved_date'])
-            ->where(function ($query) use ($validated) {
-                $query->where(function ($q) use ($validated) {
-                    $q->where('start_time', '<=', $validated['start_time'])
-                        ->where('end_time', '>=', $validated['end_time']);
-                });
-            })
-            ->exists();
+    public function storeWithCustomer(StoreReservationWithCustomerRequest $request,  StoreReservationWithCustomerUseCase $storeReservationWithCustomerUseCase)
+    {
+        $shopId = auth('shop')->user()->id;
 
-        if ($conflict) {
-            throw ValidationException::withMessages([
-                'start_time' => ['この時間帯はすでに予約が入っています。'],
-            ]);
-        }
-        $reservation = Reservation::create($validated);
+        $data = $request->validated();
+        $reservation = $storeReservationWithCustomerUseCase->execute($data, $shopId);
 
         return response()->json($reservation);
     }

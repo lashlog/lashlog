@@ -17,8 +17,33 @@
                     label="name"
                     track-by="id"
                     placeholder="顧客名を選択または入力"
-                    :taggable="true"
-                    @tag="addNewCustomer"
+                    select-label="選択"
+                    deselect-label="削除"
+                    selected-label="選択済み"
+                    no-result="該当する顧客が見つかりません"
+                >
+                    <template #noResult>
+                        <span class="px-2 py-1 text-sm text-gray-500"
+                            >該当する顧客は見つかりませんでした</span
+                        >
+                    </template>
+                    <template #noOptions>
+                        <span class="px-2 py-1 text-sm text-gray-500"
+                            >顧客が存在しません</span
+                        >
+                    </template>
+                </Multiselect>
+                <button
+                    @click="openCustomerModal"
+                    class="bg-primary-500 text-white px-3 py-1 rounded"
+                >
+                    ＋ 新規顧客を登録
+                </button>
+
+                <!-- 顧客登録モーダル -->
+                <CustomerCreateModal
+                    ref="customerModalRef"
+                    @created="handleCustomerCreated"
                 />
             </div>
 
@@ -60,11 +85,22 @@
                 <label class="block text-sm font-semibold text-gray-700 mb-1"
                     >開始時間</label
                 >
-                <input
-                    type="time"
-                    v-model="form.start_time"
-                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
+                <template>
+                    <LabeledInput label="開始時間">
+                        <select
+                            v-model="form.start_time"
+                            class="border p-2 rounded w-full"
+                        >
+                            <option
+                                v-for="time in timeOptions"
+                                :key="time"
+                                :value="time"
+                            >
+                                {{ time }}
+                            </option>
+                        </select>
+                    </LabeledInput>
+                </template>
             </div>
 
             <!-- 終了時間 -->
@@ -140,15 +176,22 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, computed } from "vue";
 import axios from "axios";
+import CustomerCreateModal from "../customer/CustomerCreateModal.vue";
+import { useShopStore } from "@/stores/shop";
+const shopStore = useShopStore();
+const shop = computed(() => shopStore.shop);
 
 const props = defineProps({
     reservation: Object,
     reservationList: Array,
+    handleCustomerCreated: Function,
+    currentDate: String,
+    availableStartTimes: Array, // 営業時間情報
 });
 const emit = defineEmits(["close", "saved"]);
-
+const customers = ref([]);
 const form = ref({
     customer_id: null,
     customer_name: "",
@@ -161,7 +204,36 @@ const form = ref({
 });
 const customerList = ref([]);
 const reservationSources = ref([]);
+const interval = shop.slotMinutes ? shop.slotMinutes : 30; // 予約単位（分単位）
+const timeOptions = computed(() =>
+    generateTimeOptions(
+        interval,
+        props.businessHours.open_time,
+        props.businessHours.close_time
+    )
+);
 
+function generateTimeOptions(unitMinutes = 30, start = "09:00", end = "23:00") {
+    const times = [];
+    const [startHour, startMin] = start.split(":").map(Number);
+    const [endHour, endMin] = end.split(":").map(Number);
+    console.log("generateTimeOptions", startHour, startMin, endHour, endMin);
+    console.log("props.currentDate", props.currentDate);
+    let current = new Date(props.currentDate);
+    current.setHours(startHour, startMin, 0, 0);
+
+    const endTime = new Date(props.currentDate);
+    endTime.setHours(endHour, endMin, 0, 0);
+
+    while (current <= endTime) {
+        const hours = current.getHours().toString().padStart(2, "0");
+        const minutes = current.getMinutes().toString().padStart(2, "0");
+        times.push(`${hours}:${minutes}`);
+        current.setMinutes(current.getMinutes() + unitMinutes);
+    }
+    console.log("生成された時間オプション:", times);
+    return times;
+}
 const fetchReservationSources = async () => {
     try {
         const res = await axios.get("/api/shop/reservation-sources");
@@ -290,8 +362,22 @@ const save = async () => {
 
         emit("saved");
         emit("close");
-    } catch (e) {
-        console.error("保存エラー", e);
+    } catch (error) {
+        if (error.response && error.response.status === 422) {
+            const errors = error.response.data.errors;
+            console.log("バリデーションエラー", errors);
+
+            // 例：1件目のエラーを表示する
+            alert(Object.values(errors)[0][0]);
+        } else {
+            console.error("その他のエラー", error);
+        }
     }
+};
+const customerModalRef = ref(null);
+
+const openCustomerModal = () => {
+    console.log("モーダル開く");
+    customerModalRef.value?.open();
 };
 </script>

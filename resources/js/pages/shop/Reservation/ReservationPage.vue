@@ -2,8 +2,11 @@
 <template>
     <div>
         <CalendarView
+            v-model:slots="displayedSlots"
             :staffList="staffList"
             :reservations="reservations"
+            :businessHours="businessHours"
+            :currentDate="currentDate"
             @edit-reservation="openModal"
             @create-reservation="openNewModal"
             @update:date="handleDateChange"
@@ -13,6 +16,9 @@
             v-if="selectedReservation"
             :reservation="selectedReservation"
             :reservation-list="reservations"
+            :handleCustomerCreated="handleCustomerCreated"
+            :currentDate="currentDate"
+            :availableStartTimes="getAvailableSlots(selectedStaffId)"
             @close="selectedReservation = null"
             @saved="reloadReservations"
         />
@@ -30,16 +36,19 @@ import axios from "axios";
 const staffList = ref([]); // ← APIで取得
 const reservations = ref([]); // ← APIで取得
 const businessHours = ref([]); // ← 営業時間情報
+const displayedSlots = ref([]); // 表示するスロット
 
 const selectedReservation = ref(null);
 const shopStore = useShopStore();
 const shop = computed(() => shopStore.shop);
 const currentDate = ref(dayjs().format("YYYY-MM-DD"));
 const fetchBusinessHours = async (dateStr) => {
+    console.log("fetchBusinessHours", dateStr);
     const res = await axios.get("/api/shop/business-hours", {
         params: { date: dateStr },
     });
     businessHours.value = res.data;
+    console.log("営業時間取得:", businessHours.value);
 };
 const openModal = (res) => {
     selectedReservation.value = res;
@@ -89,9 +98,37 @@ const fetchStaff = async () => {
     }
 };
 const handleDateChange = async (date) => {
+    console.log("日付変更:", date);
     currentDate.value = date;
     await reloadReservations();
+    const dateStr = dayjs(date).format("YYYY-MM-DD");
+    await fetchBusinessHours(dateStr);
 };
+const handleCustomerCreated = (newCustomer) => {
+    console.log("新しく顧客が作成されました:", newCustomer);
+    // 必要であれば顧客リストの再取得など
+};
+function getAvailableSlots(staffId) {
+    if (!displayedSlots.value.length) return [];
+    const reservedSlots = reservations.value
+        .filter((r) => r.staff_id === staffId)
+        .flatMap((r) => {
+            const start = dayjs(`2000-01-01T${r.start_time}`);
+            const end = dayjs(`2000-01-01T${r.end_time}`);
+            const slots = [];
+            let t = start;
+            while (t.isBefore(end)) {
+                slots.push(t.format("HH:mm"));
+                t = t.add(slotMinutes, "minute");
+            }
+            return slots;
+        });
+
+    const reservedSet = new Set(reservedSlots);
+
+    return displayedSlots.value.filter((slot) => !reservedSet.has(slot));
+}
+
 onMounted(() => {
     reloadReservations();
     fetchStaff();
