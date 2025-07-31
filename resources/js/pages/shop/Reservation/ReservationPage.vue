@@ -119,7 +119,7 @@ function getAvailableSlots(staffId) {
             let t = start;
             while (t.isBefore(end)) {
                 slots.push(t.format("HH:mm"));
-                t = t.add(slotMinutes, "minute");
+                t = t.add(shop.value.slot_minutes, "minute");
             }
             return slots;
         });
