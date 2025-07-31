@@ -15,24 +15,37 @@
                 </button>
             </div>
 
-            <div class="flex items-center space-x-2">
-                <button
-                    :class="viewMode === 'day' ? activeClass : inactiveClass"
-                    @click="changeViewMode('day')"
-                >
-                    日表示
-                </button>
-                <button
-                    :class="viewMode === 'week' ? activeClass : inactiveClass"
-                    @click="changeViewMode('week')"
-                >
-                    週表示
-                </button>
-            </div>
+        <div class="flex items-center space-x-2">
+            <button
+                :class="viewMode === 'day' ? activeClass : inactiveClass"
+                @click="changeViewMode('day')"
+            >
+                日表示
+            </button>
+            <button
+                :class="viewMode === 'week' ? activeClass : inactiveClass"
+                @click="changeViewMode('week')"
+            >
+                週表示
+            </button>
+            <button
+                :class="viewMode === 'month' ? activeClass : inactiveClass"
+                @click="changeViewMode('month')"
+            >
+                月表示
+            </button>
+        </div>
         </div>
 
         <!-- カレンダー本体 -->
+        <MonthView
+            v-if="viewMode === 'month'"
+            :reservations="reservations"
+            :staffList="staffList"
+            :currentDate="props.currentDate"
+        />
         <CalendarGrid
+            v-else
             v-model:slots="slots"
             :viewMode="viewMode"
             :date="props.currentDate"
@@ -51,6 +64,7 @@ import { ref, computed, watch, onMounted } from "vue";
 import axios from "axios";
 import dayjs from "dayjs";
 import CalendarGrid from "./CalendarGrid.vue";
+import MonthView from "./MonthView.vue";
 import { useShopStore } from "@/stores/shop";
 const shopStore = useShopStore();
 const shop = computed(() => shopStore.shop);
@@ -73,25 +87,28 @@ watch(props.currentDate, (newVal) => {
 });
 const reservations = computed(() => props.reservations);
 const formattedDate = computed(() => {
-    return new Date(props.currentDate).toLocaleDateString("ja-JP", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        weekday: "short",
-    });
+    const d = dayjs(props.currentDate)
+    if (viewMode.value === 'month') {
+        return d.format('YYYY年MM月')
+    }
+    return d.format('YYYY年MM月DD日(dd)')
 });
 
 const goToToday = () => {
     currentDate.value = new Date();
 };
 const goToPrev = () => {
-    const delta = viewMode.value === "week" ? -7 : -1;
-    const newDate = dayjs(props.currentDate).add(delta, "day").toDate();
+    let unit = "day";
+    if (viewMode.value === "week") unit = "week";
+    if (viewMode.value === "month") unit = "month";
+    const newDate = dayjs(props.currentDate).subtract(1, unit).toDate();
     emit("update:date", newDate);
 };
 const goToNext = () => {
-    const delta = viewMode.value === "week" ? 7 : 1;
-    const newDate = dayjs(props.currentDate).add(delta, "day").toDate();
+    let unit = "day";
+    if (viewMode.value === "week") unit = "week";
+    if (viewMode.value === "month") unit = "month";
+    const newDate = dayjs(props.currentDate).add(1, unit).toDate();
     emit("update:date", newDate);
 };
 
@@ -106,3 +123,4 @@ onMounted(() => {
 const activeClass = "px-3 py-1 bg-primary-500 text-white rounded shadow";
 const inactiveClass = "px-3 py-1 bg-greige-100 text-gray-600 rounded";
 </script>
+
