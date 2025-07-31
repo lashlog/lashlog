@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Shop\ShopScheduleController;
 use App\Http\Controllers\Api\Shop\ShopOpenHourController;
 use App\Http\Controllers\Api\Shop\StaffController;
 use App\Http\Controllers\Api\Shop\MenuCategoryController;
+use App\Http\Controllers\Api\Shop\SaleController;
 use App\Http\Controllers\Api\Shop\ReservationSourceController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\Customer\AuthController as CustomerAuthController;
@@ -88,6 +89,10 @@ Route::prefix('shop')->group(function () {
         Route::delete('/menus/{id}', [MenuController::class, 'destroy']);
         // メニューカテゴリーのCRUD
         Route::get('/menu-categories', [MenuCategoryController::class, 'index']);
+
+        // 売上の取得・登録
+        Route::get('/sales', [SaleController::class, 'index']);
+        Route::post('/sales', [SaleController::class, 'store']);
 
         Route::get('/business-hours', [ShopController::class, 'getBusinessHours']);
     });

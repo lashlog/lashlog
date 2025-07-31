@@ -10,6 +10,7 @@ import MenuList from "../pages/shop/settings/menu/MenuList.vue";
 import MenuCreate from "../pages/shop/settings/menu/MenuCreate.vue";
 import MenuEdit from "../pages/shop/settings/menu/MenuEdit.vue";
 import CustomerList from "../pages/shop/customer/CustomerList.vue";
+import SalesList from "../pages/shop/sales/SalesList.vue";
 import UserList from "../pages/customer/UserList.vue";
 import CustomerLogin from "../pages/customer/Login.vue";
 import CustomerRegister from "../pages/customer/Register.vue";
@@ -30,6 +31,11 @@ const routes = [
     {
         path: "/shop/calendar",
         component: ReservationPage,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: "/shop/sales",
+        component: SalesList,
         meta: { requiresAuth: true },
     },
 
