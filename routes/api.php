@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\Shop\ShopOpenHourController;
 use App\Http\Controllers\Api\Shop\StaffController;
 use App\Http\Controllers\Api\Shop\MenuCategoryController;
 use App\Http\Controllers\Api\Shop\ReservationSourceController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\Customer\AuthController as CustomerAuthController;
 use Illuminate\Support\Facades\Log;
 
 
@@ -27,6 +29,14 @@ Route::get('/sanctum/csrf-cookie', function () {
             false //
         )
     );
+});
+
+// 顧客向けAPI
+Route::get('/users', [UserController::class, 'index']);
+Route::prefix('customer')->group(function () {
+    Route::post('/register', [CustomerAuthController::class, 'register']);
+    Route::post('/login', [CustomerAuthController::class, 'login']);
+    Route::post('/line-login', [CustomerAuthController::class, 'lineLogin']);
 });
 
 // 管理者用API（スタッフログインが必要）

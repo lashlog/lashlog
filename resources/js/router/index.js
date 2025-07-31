@@ -10,6 +10,9 @@ import MenuList from "../pages/shop/settings/menu/MenuList.vue";
 import MenuCreate from "../pages/shop/settings/menu/MenuCreate.vue";
 import MenuEdit from "../pages/shop/settings/menu/MenuEdit.vue";
 import CustomerList from "../pages/shop/customer/CustomerList.vue";
+import UserList from "../pages/customer/UserList.vue";
+import CustomerLogin from "../pages/customer/Login.vue";
+import CustomerRegister from "../pages/customer/Register.vue";
 import Schedule from "../pages/shop/settings/schedule/Schedule.vue";
 import ReservationSourceCreate from "../pages/shop/settings/reservation_source/ReservationSourceCreate.vue";
 import ReservationSourceEdit from "../pages/shop/settings/reservation_source/ReservationSourceEdit.vue";
@@ -21,6 +24,9 @@ import { useShopStore } from "@/stores/shop";
 const routes = [
     { path: "/", redirect: "/shop/login" },
     { path: "/shop/login", component: Login },
+    { path: "/customer/login", component: CustomerLogin },
+    { path: "/customer/register", component: CustomerRegister },
+    { path: "/customer/users", component: UserList },
     {
         path: "/shop/calendar",
         component: ReservationPage,
