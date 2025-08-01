@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\Shop\StaffController;
 use App\Http\Controllers\Api\Shop\MenuCategoryController;
 use App\Http\Controllers\Api\Shop\ReservationSourceController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\StripeController;
 use App\Http\Controllers\Api\Customer\AuthController as CustomerAuthController;
 use Illuminate\Support\Facades\Log;
 
@@ -33,6 +34,8 @@ Route::get('/sanctum/csrf-cookie', function () {
 
 // 顧客向けAPI
 Route::get('/users', [UserController::class, 'index']);
+Route::post('/stripe/checkout-session', [StripeController::class, 'createCheckoutSession']);
+Route::get('/stripe/session/{id}', [StripeController::class, 'getSession']);
 Route::prefix('customer')->group(function () {
     Route::post('/register', [CustomerAuthController::class, 'register']);
     Route::post('/login', [CustomerAuthController::class, 'login']);
@@ -41,6 +44,8 @@ Route::prefix('customer')->group(function () {
 
 // 管理者用API（スタッフログインが必要）
 Route::prefix('shop')->group(function () {
+
+    Route::post('/register', [\App\Http\Controllers\Api\Shop\RegisterController::class, 'register']);
 
     // ログインだけは未ログインでも通す
     Route::post('/login', [AuthController::class, 'login']);
