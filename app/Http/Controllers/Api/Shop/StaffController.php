@@ -25,10 +25,11 @@ class StaffController extends Controller
         $shopId = auth('shop')->user()->id;
 
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:staffs,email',
-            'role'     => ['required', Rule::in(['owner', 'staff'])],
-            'password' => 'required|string|min:6|confirmed',
+            'name'             => 'required|string|max:255',
+            'email'            => 'required|email|unique:staffs,email',
+            'role'             => ['required', Rule::in(['owner', 'staff'])],
+            'employment_type'  => ['required', Rule::in(['fulltime', 'parttime'])],
+            'password'         => 'required|string|min:6|confirmed',
         ]);
 
         $staff = new Staff();
@@ -36,6 +37,7 @@ class StaffController extends Controller
         $staff->name = $validated['name'];
         $staff->email = $validated['email'];
         $staff->role = $validated['role'];
+        $staff->employment_type = $validated['employment_type'];
         $staff->password = Hash::make($validated['password']);
         $staff->save();
 
@@ -64,15 +66,17 @@ class StaffController extends Controller
         }
 
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => ['required', 'email', Rule::unique('staff')->ignore($staff->id)],
-            'role'     => ['required', Rule::in(['owner', 'staff'])],
-            'password' => 'nullable|string|min:6|confirmed',
+            'name'            => 'required|string|max:255',
+            'email'           => ['required', 'email', Rule::unique('staffs')->ignore($staff->id)],
+            'role'            => ['required', Rule::in(['owner', 'staff'])],
+            'employment_type' => ['required', Rule::in(['fulltime', 'parttime'])],
+            'password'        => 'nullable|string|min:6|confirmed',
         ]);
 
         $staff->name = $validated['name'];
         $staff->email = $validated['email'];
         $staff->role = $validated['role'];
+        $staff->employment_type = $validated['employment_type'];
         if (!empty($validated['password'])) {
             $staff->password = Hash::make($validated['password']);
         }

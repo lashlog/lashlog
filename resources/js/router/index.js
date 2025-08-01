@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { h } from 'vue';
 
 // 機能ごとのページを分かりやすくインポート
 import ReservationPage from "../pages/shop/reservation/ReservationPage.vue";
@@ -22,9 +23,17 @@ import ReservationSourceList from "../pages/shop/settings/reservation_source/Res
 import Login from "../pages/shop/auth/Login.vue";
 import { useShopAuth } from "../composables/useShopAuth";
 import { useShopStore } from "@/stores/shop";
+import StaffLogin from "../pages/staff/Login.vue";
+import AttendancePage from "../pages/staff/AttendancePage.vue";
+import ShiftPage from "../pages/staff/ShiftPage.vue";
+import CalendarPage from "../pages/staff/CalendarPage.vue";
+import ChartPage from "../pages/staff/ChartPage.vue";
+import { useStaffAuth } from "../composables/useStaffAuth";
+import { useStaffStore } from "@/stores/staff";
 const routes = [
     { path: "/", redirect: "/shop/login" },
     { path: "/shop/login", component: Login },
+    { path: "/staff/login", component: StaffLogin },
     { path: "/customer/login", component: CustomerLogin },
     { path: "/customer/register", component: CustomerRegister },
     { path: "/customer/users", component: UserList },
@@ -133,6 +142,17 @@ const routes = [
             },
         ],
     },
+    {
+        path: "/staff",
+        component: { render: () => h('router-view') },
+        meta: { requiresStaffAuth: true },
+        children: [
+            { path: "attendance", component: AttendancePage },
+            { path: "shift", component: ShiftPage },
+            { path: "calendar", component: CalendarPage },
+            { path: "chart", component: ChartPage }
+        ]
+    },
 ];
 
 const router = createRouter({
@@ -143,6 +163,8 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
     const shopStore = useShopStore();
     const { fetchShop } = useShopAuth();
+    const staffStore = useStaffStore();
+    const { fetchStaff } = useStaffAuth();
     console.log("ルート遷移:", to.path);
 
     if (to.meta.requiresAuth === true) {
@@ -157,8 +179,23 @@ router.beforeEach(async (to, from, next) => {
             return next("/shop/login");
         }
     }
+    if (to.meta.requiresStaffAuth === true) {
+        if (staffStore.staff === null) {
+            try {
+                await fetchStaff();
+            } catch (e) {
+                console.warn("スタッフ未認証");
+            }
+        }
+        if (!staffStore.staff) {
+            return next("/staff/login");
+        }
+    }
     if (to.path === "/shop/login" && shopStore.shop) {
         return next("/shop/calendar");
+    }
+    if (to.path === "/staff/login" && staffStore.staff) {
+        return next("/staff/attendance");
     }
 
     next();

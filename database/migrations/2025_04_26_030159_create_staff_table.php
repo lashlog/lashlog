@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('email')->unique(); // ログイン用
             $table->string('password');
             $table->enum('role', ['owner', 'staff'])->default('staff'); // 権限区別
+            $table->enum('employment_type', ['fulltime', 'parttime'])->default('fulltime');
             $table->rememberToken();
             $table->timestamps();
         });

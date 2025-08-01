@@ -12,10 +12,12 @@
 import { useRouter } from "vue-router";
 import { watch } from "vue";
 import { useShopStore } from "@/stores/shop";
+import { useStaffStore } from "@/stores/staff";
 import Header from "./components/Header.vue";
 
 const router = useRouter();
 const shopStore = useShopStore();
+const staffStore = useStaffStore();
 
 // 👇 状態を常時監視する
 watch(
@@ -23,6 +25,15 @@ watch(
     (newVal) => {
         if (!newVal && router.currentRoute.value.path !== "/shop/login") {
             router.push("/shop/login");
+        }
+    },
+    { immediate: true }
+);
+watch(
+    () => staffStore.staff,
+    (val) => {
+        if (!val && router.currentRoute.value.path.startsWith('/staff') && router.currentRoute.value.path !== '/staff/login') {
+            router.push('/staff/login');
         }
     },
     { immediate: true }
