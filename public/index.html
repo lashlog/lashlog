@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="アイラッシュサロン向け予約・顧客管理クラウドサービス">
+  <title>LashLog | まつエクサロン向け予約・顧客管理SaaS</title>
+  <style>
+    :root {
+      --accent-pink: #e8c2d1;
+      --accent-beige: #d7cfc7;
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Yu Gothic", YuGothic, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #fff;
+    }
+    a { color: var(--accent-pink); text-decoration: none; }
+    header {
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid #eee;
+    }
+    header nav a {
+      margin-left: 1rem;
+      font-weight: bold;
+    }
+    .hero {
+      background: url('https://picsum.photos/seed/lashlog/1600/900') center/cover no-repeat;
+      color: #fff;
+      text-align: center;
+      padding: 6rem 1rem;
+    }
+    .hero h1 { font-size: 2.2rem; margin-bottom: 1rem; }
+    .hero p { font-size: 1.2rem; margin-bottom: 2rem; }
+    .btn {
+      display: inline-block;
+      padding: 0.8rem 2rem;
+      background: var(--accent-pink);
+      color: #fff;
+      border-radius: 30px;
+      font-weight: bold;
+      text-align: center;
+      min-width: 120px;
+    }
+    }
+    .section {
+      padding: 4rem 1rem;
+      max-width: 1000px;
+      margin: auto;
+    }
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .card {
+      flex: 1 1 280px;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .card img {
+      width: 100%;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: center;
+    }
+    th { background: var(--accent-beige); }
+    .benefits {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .benefit {
+      flex: 1 1 240px;
+      text-align: center;
+      padding: 1rem;
+    }
+    .testimonials blockquote {
+      background: #f8f8f8;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 0 0 1rem 0;
+    }
+    details {
+      margin-bottom: 1rem;
+    }
+    footer {
+      background: #333;
+      color: #fff;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    footer a { color: var(--accent-pink); margin: 0 0.5rem; }
+    @media (max-width: 600px) {
+      .hero { padding: 4rem 1rem; }
+      .hero h1 { font-size: 1.8rem; }
+      header nav a { margin-left: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo"><strong>LashLog</strong></div>
+  <nav>
+    <a href="#service">サービス</a>
+    <a href="#price">料金</a>
+    <a href="plans.html">料金比較</a>
+    <a href="#contact">お問い合わせ</a>
+  </nav>
+</header>
+<section class="hero">
+  <h1>サロン運営をもっとスマートに</h1>
+  <p>予約管理・電子カルテ・決済連携まで<br>これ一つで完結。</p>
+</section>
+<section id="service" class="section">
+  <h2>主な機能</h2>
+  <div class="cards">
+    <div class="card">
+      <img src="https://picsum.photos/seed/calendar/400/250" alt="カレンダー">
+      <h3>予約管理カレンダー</h3>
+      <p>ドラッグ&ドロップで簡単操作。空き状況もひと目でわかります。</p>
+    </div>
+    <div class="card">
+      <img src="https://picsum.photos/seed/chart/400/250" alt="電子カルテ">
+      <h3>電子カルテ機能</h3>
+      <p>iPad対応で施術内容や顧客情報をいつでも確認。</p>
+    </div>
+    <div class="card">
+      <img src="https://picsum.photos/seed/payment/400/250" alt="LINE連携">
+      <h3>LINE・決済連携</h3>
+      <p>LINEで予約通知、Stripeでキャッシュレス決済。</p>
+    </div>
+  </div>
+</section>
+<section id="price" class="section">
+  <h2>料金プラン</h2>
+  <table>
+    <tr>
+      <th>プラン</th>
+      <th>月額料金</th>
+      <th>特徴</th>
+      <th>申し込む</th>
+    </tr>
+    <tr>
+      <td>ベーシック</td>
+      <td>9,800円</td>
+      <td>基本機能</td>
+      <td><a class="btn" href="/subscribe/basic">申し込む</a></td>
+    </tr>
+    <tr>
+      <td>プロ</td>
+      <td>12,800円</td>
+      <td>LINE連携・Stripe決済</td>
+      <td><a class="btn" href="/subscribe/pro">申し込む</a></td>
+    </tr>
+    <tr>
+      <td>プレミアム</td>
+      <td>18,000円</td>
+      <td>スタッフ無制限</td>
+      <td><a class="btn" href="/subscribe/premium">申し込む</a></td>
+    </tr>
+  </table>
+</section>
+<section class="section">
+  <h2>導入メリット</h2>
+  <div class="benefits">
+    <div class="benefit">
+      <img src="https://picsum.photos/seed/time/100/100" alt="時短" />
+      <p>予約管理の手間を大幅削減。</p>
+    </div>
+    <div class="benefit">
+      <img src="https://picsum.photos/seed/fan/100/100" alt="顧客満足" />
+      <p>顧客情報を一元管理しリピート率UP。</p>
+    </div>
+    <div class="benefit">
+      <img src="https://picsum.photos/seed/cloud/100/100" alt="クラウド" />
+      <p>クラウドなのでどこからでもアクセス。</p>
+    </div>
+  </div>
+</section>
+<section class="section testimonials">
+  <h2>お客様の声</h2>
+  <blockquote>
+    <p>"LashLogのおかげで予約ミスがなくなりました！"</p>
+    <cite>- Tokyo Lash Salon</cite>
+  </blockquote>
+  <blockquote>
+    <p>"カルテをiPadで確認できるので施術がスムーズです。"</p>
+    <cite>- Osaka Beauty Studio</cite>
+  </blockquote>
+  <blockquote>
+    <p>"LINE通知で顧客との連絡が楽になりました。"</p>
+    <cite>- Nagoya Eye Clinic</cite>
+  </blockquote>
+</section>
+<section class="section">
+  <h2>よくある質問</h2>
+  <details>
+    <summary>無料トライアルはありますか？</summary>
+    <p>はい、14日間の無料トライアルをご用意しています。</p>
+  </details>
+  <details>
+    <summary>データの移行は可能ですか？</summary>
+    <p>現在お使いのCSVデータをインポートできます。</p>
+  </details>
+  <details>
+    <summary>サポートはありますか？</summary>
+    <p>メール・チャットでのサポートがご利用いただけます。</p>
+  </details>
+</section>
+<section id="contact" class="section" style="text-align:center;">
+  <p>ご質問は <a href="mailto:info@example.com">info@example.com</a> まで。</p>
+</section>
+<footer>
+  <p>
+    <a href="#">利用規約</a> | 
+    <a href="https://instagram.com" target="_blank">Instagram</a>
+  </p>
+  <small>&copy; 2024 LashLog</small>
+</footer>
+</body>
+</html>

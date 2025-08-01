@@ -19,6 +19,10 @@ import Schedule from "../pages/shop/settings/schedule/Schedule.vue";
 import ReservationSourceCreate from "../pages/shop/settings/reservation_source/ReservationSourceCreate.vue";
 import ReservationSourceEdit from "../pages/shop/settings/reservation_source/ReservationSourceEdit.vue";
 import ReservationSourceList from "../pages/shop/settings/reservation_source/ReservationSourceList.vue";
+import Plans from "../pages/subscribe/Plans.vue";
+import Complete from "../pages/subscribe/Complete.vue";
+import Register from "../pages/subscribe/Register.vue";
+import Dashboard from "../pages/subscribe/Dashboard.vue";
 
 import Login from "../pages/shop/auth/Login.vue";
 import { useShopAuth } from "../composables/useShopAuth";
@@ -31,7 +35,11 @@ import ChartPage from "../pages/staff/ChartPage.vue";
 import { useStaffAuth } from "../composables/useStaffAuth";
 import { useStaffStore } from "@/stores/staff";
 const routes = [
-    { path: "/", redirect: "/shop/login" },
+    { path: "/", redirect: "/plans" },
+    { path: "/plans", component: Plans },
+    { path: "/complete", component: Complete },
+    { path: "/register", component: Register },
+    { path: "/dashboard", component: Dashboard, meta: { requiresAuth: true } },
     { path: "/shop/login", component: Login },
     { path: "/staff/login", component: StaffLogin },
     { path: "/customer/login", component: CustomerLogin },

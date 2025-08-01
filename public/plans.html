@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LashLogの料金プラン比較ページ">
+  <title>LashLog | 料金比較</title>
+  <style>
+    :root {
+      --accent-pink: #e8c2d1;
+      --accent-beige: #d7cfc7;
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Yu Gothic", YuGothic, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #fff;
+    }
+    a { color: var(--accent-pink); text-decoration: none; }
+    header {
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid #eee;
+    }
+    header nav a { margin-left: 1rem; font-weight: bold; }
+    h1 { text-align: center; margin-top: 2rem; }
+    .plans-wrapper { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+    table.plans { width: 100%; border-collapse: collapse; }
+    table.plans th, table.plans td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: center;
+    }
+    table.plans th { background: var(--accent-beige); }
+    .btn {
+      display: inline-block;
+      padding: 0.6rem 1.5rem;
+      background: var(--accent-pink);
+      color: #fff;
+      border-radius: 30px;
+      font-weight: bold;
+    }
+    @media (max-width: 600px) {
+      table.plans {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo"><strong>LashLog</strong></div>
+  <nav>
+    <a href="index.html">ホーム</a>
+  </nav>
+</header>
+<main class="plans-wrapper">
+  <h1>料金比較</h1>
+  <table class="plans">
+    <thead>
+      <tr>
+        <th>項目</th>
+        <th>ベーシック</th>
+        <th>プロ</th>
+        <th>プレミアム</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>月額料金</th>
+        <td>9,800円</td>
+        <td>12,800円</td>
+        <td>18,000円</td>
+      </tr>
+      <tr>
+        <th>予約管理</th>
+        <td>◯</td>
+        <td>◯</td>
+        <td>◯</td>
+      </tr>
+      <tr>
+        <th>電子カルテ</th>
+        <td>◯</td>
+        <td>◯</td>
+        <td>◯</td>
+      </tr>
+      <tr>
+        <th>LINE連携</th>
+        <td>—</td>
+        <td>◯</td>
+        <td>◯</td>
+      </tr>
+      <tr>
+        <th>Stripe決済</th>
+        <td>—</td>
+        <td>◯</td>
+        <td>◯</td>
+      </tr>
+      <tr>
+        <th>スタッフ数制限</th>
+        <td>1名まで</td>
+        <td>5名まで</td>
+        <td>無制限</td>
+      </tr>
+      <tr>
+        <th>サポート</th>
+        <td>メール</td>
+        <td>メール・チャット</td>
+        <td>優先サポート</td>
+      </tr>
+      <tr>
+        <th>申し込む</th>
+        <td><a class="btn" href="/subscribe/basic">申し込む</a></td>
+        <td><a class="btn" href="/subscribe/pro">申し込む</a></td>
+        <td><a class="btn" href="/subscribe/premium">申し込む</a></td>
+      </tr>
+    </tbody>
+  </table>
+</main>
+<footer style="text-align:center; padding:2rem 1rem; background:#333; color:#fff;">
+  <a href="index.html" style="color:#fff;">トップへ戻る</a>
+</footer>
+</body>
+</html>
