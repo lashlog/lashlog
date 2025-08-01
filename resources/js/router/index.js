@@ -2,15 +2,15 @@ import { createRouter, createWebHistory } from "vue-router";
 import { h } from 'vue';
 
 // 機能ごとのページを分かりやすくインポート
-import ReservationPage from "../pages/shop/reservation/ReservationPage.vue";
-import CalendarView from "../pages/shop/reservation/CalendarView.vue";
+import ReservationPage from "../pages/shop/Reservation/ReservationPage.vue";
+import CalendarView from "../pages/shop/Reservation/CalendarView.vue";
 import SettingsLayout from "../pages/shop/settings/SettingsLayout.vue";
 import StaffList from "../pages/shop/settings/staff/StaffList.vue";
 import ShopForm from "../pages/shop/settings/shop/ShopForm.vue";
 import MenuList from "../pages/shop/settings/menu/MenuList.vue";
 import MenuCreate from "../pages/shop/settings/menu/MenuCreate.vue";
 import MenuEdit from "../pages/shop/settings/menu/MenuEdit.vue";
-import CustomerList from "../pages/shop/customer/CustomerList.vue";
+import CustomerList from "../pages/shop/Customer/CustomerList.vue";
 import SalesList from "../pages/shop/sales/SalesList.vue";
 import UserList from "../pages/customer/UserList.vue";
 import CustomerLogin from "../pages/customer/Login.vue";
@@ -24,7 +24,7 @@ import Complete from "../pages/subscribe/Complete.vue";
 import Register from "../pages/subscribe/Register.vue";
 import Dashboard from "../pages/subscribe/Dashboard.vue";
 
-import Login from "../pages/shop/auth/Login.vue";
+import Login from "../pages/shop/Auth/Login.vue";
 import { useShopAuth } from "../composables/useShopAuth";
 import { useShopStore } from "@/stores/shop";
 import StaffLogin from "../pages/staff/Login.vue";
@@ -65,13 +65,13 @@ const routes = [
     {
         path: "/shop/customers/create",
         name: "shop.customer.create",
-        component: () => import("../pages/shop/customer/CustomerCreate.vue"),
+        component: () => import("../pages/shop/Customer/CustomerCreate.vue"),
         meta: { requiresAuth: true },
     },
     {
         path: "/shop/customers/:id/edit",
         name: "shop.customer.edit",
-        component: () => import("../pages/shop/customer/CustomerEdit.vue"),
+        component: () => import("../pages/shop/Customer/CustomerEdit.vue"),
         meta: { requiresAuth: true },
     },
     // ✅ 設定系をグループ化

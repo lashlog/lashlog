@@ -40,9 +40,10 @@
         <!-- カレンダー本体 -->
         <MonthView
             v-if="viewMode === 'month'"
-            :reservations="reservations"
-            :staffList="staffList"
-            :currentDate="props.currentDate"
+            :reservations-by-date="reservationsByDate"
+            :current-month="currentMonth"
+            @select-date="emit('update:date', $event)"
+            @update:currentMonth="handleMonthChange"
         />
         <CalendarGrid
             v-else
@@ -82,38 +83,61 @@ const props = defineProps({
     businessHours: Array, // 営業時間情報
     currentDate: String,
 });
-watch(props.currentDate, (newVal) => {
-    emit("update:date", dayjs(newVal).format("YYYY-MM-DD"));
-});
-const reservations = computed(() => props.reservations);
-const formattedDate = computed(() => {
-    const d = dayjs(props.currentDate)
-    if (viewMode.value === 'month') {
-        return d.format('YYYY年MM月')
+const currentMonth = ref(dayjs(props.currentDate).format('YYYY-MM'));
+watch(
+    () => props.currentDate,
+    (newVal) => {
+        currentMonth.value = dayjs(newVal).format('YYYY-MM');
+        emit('update:date', dayjs(newVal).format('YYYY-MM-DD'));
     }
-    return d.format('YYYY年MM月DD日(dd)')
+);
+
+const reservations = computed(() => props.reservations);
+const reservationsByDate = computed(() => {
+    const map = {};
+    for (const r of props.reservations) {
+        const date = r.reserved_date;
+        if (!map[date]) map[date] = [];
+        map[date].push({
+            id: r.id,
+            customer_name: r.customer?.name || r.customer_name || '',
+            menu_name: r.menu?.name || r.menu_name || '',
+        });
+    }
+    return Object.keys(map).map((d) => ({ date: d, reservations: map[d] }));
+});
+const formattedDate = computed(() => {
+    if (viewMode.value === 'month') {
+        return dayjs(currentMonth.value + '-01').format('YYYY年MM月');
+    }
+    return dayjs(props.currentDate).format('YYYY年MM月DD日(dd)');
 });
 
 const goToToday = () => {
-    currentDate.value = new Date();
+    emit('update:date', dayjs().format('YYYY-MM-DD'));
 };
 const goToPrev = () => {
     let unit = "day";
     if (viewMode.value === "week") unit = "week";
     if (viewMode.value === "month") unit = "month";
-    const newDate = dayjs(props.currentDate).subtract(1, unit).toDate();
-    emit("update:date", newDate);
+    const newDate = dayjs(props.currentDate).subtract(1, unit).format('YYYY-MM-DD');
+    emit('update:date', newDate);
 };
 const goToNext = () => {
     let unit = "day";
     if (viewMode.value === "week") unit = "week";
     if (viewMode.value === "month") unit = "month";
-    const newDate = dayjs(props.currentDate).add(1, unit).toDate();
-    emit("update:date", newDate);
+    const newDate = dayjs(props.currentDate).add(1, unit).format('YYYY-MM-DD');
+    emit('update:date', newDate);
 };
 
 const changeViewMode = (mode) => {
     viewMode.value = mode;
+};
+
+const handleMonthChange = (newMonth) => {
+    currentMonth.value = newMonth;
+    emit('update:date', dayjs(newMonth + '-01').format('YYYY-MM-DD'));
 };
 
 onMounted(() => {
