@@ -18,6 +18,7 @@ class Reservation extends Model
         'start_time',
         'end_time',
         'duration_minutes',
+        'price',
         'memo',
     ];
 

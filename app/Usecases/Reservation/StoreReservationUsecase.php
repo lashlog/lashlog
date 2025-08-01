@@ -33,6 +33,7 @@ class StoreReservationUseCase
             'memo' => 'nullable|string',
             'shop_id' => 'required|exists:shops,id',
             'reservation_source_id' => 'nullable|exists:reservation_sources,id',
+            'price' => 'nullable|integer',
         ], [
             'reserved_date.required' => '予約日を入力してください。',
             'reserved_date.date' => '予約日には正しい日付を入力してください。',
@@ -50,6 +51,7 @@ class StoreReservationUseCase
             'shop_id.required' => '店舗IDが必要です（システムエラー）。',
             'shop_id.exists' => '店舗が存在しません（システムエラー）。',
             'reservation_source_id.exists' => '予約元媒体の情報が正しくありません。',
+            'price.integer' => '金額は数値で入力してください。',
         ]);
 
         if ($validator->fails()) {

@@ -47,6 +47,7 @@ class ReservationFactory extends Factory
             'reserved_date' => $start->format('Y-m-d'),
             'start_time' => $start->format('H:i'),
             'end_time' => $end->format('H:i'),
+            'price' => $this->faker->numberBetween(1000, 10000),
             'memo' => $this->faker->realText(20),
         ];
     }
