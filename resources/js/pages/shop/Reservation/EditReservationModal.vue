@@ -190,7 +190,7 @@
 <script setup>
 import { ref, watch, onMounted, computed } from "vue";
 import axios from "axios";
-import CustomerCreateModal from "../customer/CustomerCreateModal.vue";
+import CustomerCreateModal from "../Customer/CustomerCreateModal.vue";
 import { useShopStore } from "@/stores/shop";
 const shopStore = useShopStore();
 const shop = computed(() => shopStore.shop);

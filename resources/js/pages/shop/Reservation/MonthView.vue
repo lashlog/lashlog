@@ -1,86 +1,150 @@
 <template>
-    <div class="grid grid-cols-7 gap-px bg-gray-200 text-xs">
+    <div>
+        <!-- ナビゲーション -->
+        <div class="flex items-center justify-between mb-2 text-sm">
+            <div class="flex items-center gap-2">
+                <button @click="changeMonth(-1)" class="text-primary-500">
+                    &lt;前月
+                </button>
+                <button @click="goToday" class="text-primary-500">今月</button>
+                <button @click="changeMonth(1)" class="text-primary-500">
+                    翌月&gt;
+                </button>
+            </div>
+            <div class="font-bold text-lg">
+                {{ displayMonth }}
+            </div>
+            <button @click="viewDay" class="text-primary-500">日表示</button>
+        </div>
+
+        <!-- カレンダー本体 -->
         <div
-            v-for="day in days"
-            :key="day.date.format('YYYY-MM-DD')"
-            class="bg-white h-28 p-1 overflow-hidden cursor-pointer"
-            :class="{
-                'bg-primary-100': isSelected(day.date),
-                'opacity-50': day.isOtherMonth,
-            }"
-            @click="selectDay(day.date)"
-            @dblclick="createReservation(day.date)"
+            class="grid grid-cols-7 gap-px text-xs"
+            :style="{ backgroundColor: 'var(--color-greige-100)' }"
         >
             <div
-                class="font-bold text-sm"
-                :class="day.isOtherMonth ? 'text-gray-400' : ''"
+                v-for="day in days"
+                :key="day.date"
+                class="bg-white p-1 min-h-24 flex flex-col cursor-pointer"
+                :class="{ 'opacity-50': day.isOtherMonth }"
+                @click="selectDay(day.date)"
             >
-                {{ day.date.date() }}
-            </div>
-            <div
-                v-for="res in day.reservations"
-                :key="res.id"
-                class="mt-1 truncate"
-            >
-                {{ res.start_time }} {{ staffName(res.staff_id) }}
+                <div class="flex justify-end">
+                    <div
+                        class="w-6 h-6 flex items-center justify-center text-sm"
+                        :class="[
+                            isSelected(day.date)
+                                ? 'rounded-full'
+                                : '',
+                            day.isOtherMonth ? 'text-gray-400' : ''
+                        ]"
+                        :style="
+                            isSelected(day.date)
+                                ? { backgroundColor: 'var(--color-primary-100)' }
+                                : {}
+                        "
+                    >
+                        {{ formatDayNumber(day.date) }}
+                    </div>
+                </div>
+                <div class="mt-1 space-y-0.5">
+                    <div
+                        v-for="res in day.reservations.slice(0, 3)"
+                        :key="res.id"
+                        class="truncate text-primary-500 cursor-pointer"
+                        @click.stop="openDetail(res.id)"
+                    >
+                        {{ res.customer_name }}（{{ res.menu_name }}）
+                    </div>
+                    <div
+                        v-if="day.reservations.length > 3"
+                        class="text-right text-primary-500 cursor-pointer"
+                        @click.stop="openList(day.date)"
+                    >
+                        他{{ day.reservations.length - 3 }}件
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
 
 const props = defineProps({
-    reservations: Array,
-    staffList: Array,
-    currentDate: String,
+    reservationsByDate: Array,
+    currentMonth: String,
 })
-const emit = defineEmits(['update:date', 'create-reservation'])
 
-const staffName = (id) => {
-    const s = props.staffList.find((st) => st.id === id)
-    return s ? s.name : ''
-}
+const emit = defineEmits([
+    'select-date',
+    'view-day',
+    'open-reservation-detail',
+    'open-reservation-list',
+    'update:currentMonth',
+])
 
-const isSelected = (date) => {
-    return date.format('YYYY-MM-DD') === props.currentDate
-}
+const selectedDate = ref(dayjs().format('YYYY-MM-DD'))
 
-const selectDay = (date) => {
-    emit('update:date', date.format('YYYY-MM-DD'))
-}
+const month = ref(dayjs(`${props.currentMonth}-01`))
 
-const createReservation = (date) => {
-    const staffId = props.staffList[0]?.id || null
-    emit('create-reservation', {
-        reserved_date: date.format('YYYY-MM-DD'),
-        start_time: '09:00',
-        staff_id: staffId,
-    })
-}
+const reservationsMap = computed(() => {
+    const map = {}
+    for (const item of props.reservationsByDate) {
+        map[item.date] = item.reservations
+    }
+    return map
+})
 
 const days = computed(() => {
-    const start = dayjs(props.currentDate).startOf('month').startOf('week')
-    const end = dayjs(props.currentDate).endOf('month').endOf('week')
+    const start = month.value.startOf('month').startOf('week')
+    const end = month.value.endOf('month').endOf('week')
     const arr = []
-    for (let d = start; d.isBefore(end) || d.isSame(end, 'day'); d = d.add(1, 'day')) {
-        const list = props.reservations.filter(
-            (r) => r.reserved_date === d.format('YYYY-MM-DD')
-        )
+    for (let d = start.clone(); d.isSame(end) || d.isBefore(end); d = d.add(1, 'day')) {
+        const dateStr = d.format('YYYY-MM-DD')
         arr.push({
-            date: d,
-            reservations: list,
-            isOtherMonth: d.month() !== dayjs(props.currentDate).month(),
+            date: dateStr,
+            reservations: reservationsMap.value[dateStr] || [],
+            isOtherMonth: d.month() !== month.value.month(),
         })
     }
     return arr
 })
+
+const displayMonth = computed(() => month.value.format('YYYY年M月'))
+
+const formatDayNumber = (dateStr) => dayjs(dateStr).date()
+
+const isSelected = (dateStr) => selectedDate.value === dateStr
+
+const selectDay = (dateStr) => {
+    selectedDate.value = dateStr
+    emit('select-date', dateStr)
+}
+
+const viewDay = () => {
+    emit('view-day', selectedDate.value)
+}
+
+const changeMonth = (diff) => {
+    month.value = month.value.add(diff, 'month')
+    emit('update:currentMonth', month.value.format('YYYY-MM'))
+}
+
+const goToday = () => {
+    month.value = dayjs().startOf('month')
+    emit('update:currentMonth', month.value.format('YYYY-MM'))
+}
+
+const openDetail = (id) => emit('open-reservation-detail', id)
+
+const openList = (dateStr) => emit('open-reservation-list', dateStr)
 </script>
 
 <style scoped>
-.grid > div {
-    min-height: 7rem;
+.min-h-24 {
+    min-height: 6rem;
 }
 </style>
