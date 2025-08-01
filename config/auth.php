@@ -45,6 +45,11 @@ return [
             'driver' => 'session',
             'provider' => 'shops',
         ],
+
+        'staff' => [
+            'driver' => 'session',
+            'provider' => 'staffs',
+        ],
         'sanctum' => [
             'driver' => 'sanctum',
             'provider' => 'shops',
@@ -78,6 +83,11 @@ return [
             'driver' => 'eloquent',
             'model' => env('AUTH_SHOP_MODEL', App\Models\Shop::class),
         ],
+
+        'staffs' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Staff::class,
+        ],
     ],
 
     /*
@@ -110,6 +120,13 @@ return [
         'shops' => [
             'provider' => 'shops',
             'table' => env('AUTH_SHOP_PASSWORD_RESET_TOKEN_TABLE', 'shop_password_reset_tokens'),
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'staffs' => [
+            'provider' => 'staffs',
+            'table' => 'staff_password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,
         ],

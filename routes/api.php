@@ -10,9 +10,14 @@ use App\Http\Controllers\Api\Shop\ShopScheduleController;
 use App\Http\Controllers\Api\Shop\ShopOpenHourController;
 use App\Http\Controllers\Api\Shop\StaffController;
 use App\Http\Controllers\Api\Shop\MenuCategoryController;
+use App\Http\Controllers\Api\Shop\SaleController;
 use App\Http\Controllers\Api\Shop\ReservationSourceController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\StripeController;
+use App\Http\Controllers\Api\Staff\AuthController as StaffAuthController;
+use App\Http\Controllers\Api\Staff\AttendanceController;
+use App\Http\Controllers\Api\Staff\ShiftController;
+use App\Http\Controllers\Api\Staff\ChartController;
 use App\Http\Controllers\Api\Customer\AuthController as CustomerAuthController;
 use Illuminate\Support\Facades\Log;
 
@@ -94,6 +99,26 @@ Route::prefix('shop')->group(function () {
         // メニューカテゴリーのCRUD
         Route::get('/menu-categories', [MenuCategoryController::class, 'index']);
 
+        // 売上の取得・登録
+        Route::get('/sales', [SaleController::class, 'index']);
+        Route::post('/sales', [SaleController::class, 'store']);
+
         Route::get('/business-hours', [ShopController::class, 'getBusinessHours']);
+    });
+});
+
+// スタッフ用API
+Route::prefix('staff')->group(function () {
+    Route::post('/login', [StaffAuthController::class, 'login']);
+    Route::post('/logout', [StaffAuthController::class, 'logout']);
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/me', [StaffAuthController::class, 'me']);
+        Route::post('/attendance/start', [AttendanceController::class, 'startWork']);
+        Route::post('/attendance/{id}/end', [AttendanceController::class, 'endWork']);
+        Route::get('/attendances', [AttendanceController::class, 'index']);
+        Route::post('/shifts', [ShiftController::class, 'store']);
+        Route::get('/shifts', [ShiftController::class, 'index']);
+        Route::post('/charts', [ChartController::class, 'store']);
     });
 });

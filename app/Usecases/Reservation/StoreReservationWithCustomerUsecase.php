@@ -62,6 +62,7 @@ class StoreReservationWithCustomerUseCase
                 'end_time'      => $data['end_time'],
                 'memo' => $data['memo'] ?? null,
                 'reservation_source_id' => $data['reservation_source_id'] ?? null,
+                'price' => $data['price'] ?? null,
             ]);
         });
     }

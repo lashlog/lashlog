@@ -31,6 +31,7 @@ class StoreReservationWithCustomerRequest extends FormRequest
             'reservation_source_id' => 'nullable|exists:reservation_sources,id',
             'customer_name' => 'required|string|max:255',
             'customer_phone' => 'nullable|string|max:20',
+            'price' => 'nullable|integer',
         ];
     }
 
@@ -59,6 +60,7 @@ class StoreReservationWithCustomerRequest extends FormRequest
             'customer_name.required' => '顧客名を入力してください。',
             'customer_name.string' => '顧客名は文字列で入力してください。',
             'customer_phone.string' => '電話番号は文字列で入力してください。',
+            'price.integer' => '金額は数値で入力してください。',
         ];
     }
 }

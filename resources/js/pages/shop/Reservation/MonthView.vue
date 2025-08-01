@@ -3,7 +3,13 @@
         <div
             v-for="day in days"
             :key="day.date.format('YYYY-MM-DD')"
-            class="bg-white h-28 p-1 overflow-hidden"
+            class="bg-white h-28 p-1 overflow-hidden cursor-pointer"
+            :class="{
+                'bg-primary-100': isSelected(day.date),
+                'opacity-50': day.isOtherMonth,
+            }"
+            @click="selectDay(day.date)"
+            @dblclick="createReservation(day.date)"
         >
             <div
                 class="font-bold text-sm"
@@ -31,10 +37,28 @@ const props = defineProps({
     staffList: Array,
     currentDate: String,
 })
+const emit = defineEmits(['update:date', 'create-reservation'])
 
 const staffName = (id) => {
     const s = props.staffList.find((st) => st.id === id)
     return s ? s.name : ''
+}
+
+const isSelected = (date) => {
+    return date.format('YYYY-MM-DD') === props.currentDate
+}
+
+const selectDay = (date) => {
+    emit('update:date', date.format('YYYY-MM-DD'))
+}
+
+const createReservation = (date) => {
+    const staffId = props.staffList[0]?.id || null
+    emit('create-reservation', {
+        reserved_date: date.format('YYYY-MM-DD'),
+        start_time: '09:00',
+        staff_id: staffId,
+    })
 }
 
 const days = computed(() => {

@@ -7,21 +7,21 @@ export function useStaffAuth() {
     const login = async (email: string, password: string) => {
         await axios.get("/sanctum/csrf-cookie", { withCredentials: true });
         await axios.post(
-            "/api/admin/login",
+            "/api/staff/login",
             { email, password },
             { withCredentials: true }
         );
-        const res = await axios.get("/api/admin/me", { withCredentials: true });
+        const res = await axios.get("/api/staff/me", { withCredentials: true });
         staff.value = res.data;
     };
 
     const logout = async () => {
-        await axios.post("/api/admin/logout", {}, { withCredentials: true });
+        await axios.post("/api/staff/logout", {}, { withCredentials: true });
         staff.value = null;
     };
     const fetchStaff = async () => {
         try {
-            const res = await axios.get("/api/admin/me", {
+            const res = await axios.get("/api/staff/me", {
                 withCredentials: true,
             });
             staff.value = res.data;
