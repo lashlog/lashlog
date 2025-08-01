@@ -9,164 +9,173 @@
             </h2>
 
             <div class="grid grid-cols-2 gap-4">
-
-            <!-- お名前 -->
-            <div class="mb-4 col-span-2">
-                <label class="block text-sm font-medium mb-1">お名前</label>
-                <Multiselect
-                    v-model="form.customer"
-                    :options="customerList"
-                    label="name"
-                    track-by="id"
-                    placeholder="顧客名を選択または入力"
-                    select-label="選択"
-                    deselect-label="削除"
-                    selected-label="選択済み"
-                    no-result="該当する顧客が見つかりません"
-                >
-                    <template #noResult>
-                        <span class="px-2 py-1 text-sm text-gray-500"
-                            >該当する顧客は見つかりませんでした</span
-                        >
-                    </template>
-                    <template #noOptions>
-                        <span class="px-2 py-1 text-sm text-gray-500"
-                            >顧客が存在しません</span
-                        >
-                    </template>
-                </Multiselect>
-                <button
-                    @click="openCustomerModal"
-                    class="bg-primary-500 text-white px-3 py-1 rounded"
-                >
-                    ＋ 新規顧客を登録
-                </button>
-
-                <!-- 顧客登録モーダル -->
-                <CustomerCreateModal
-                    ref="customerModalRef"
-                    @created="handleCustomerCreated"
-                />
-            </div>
-
-            <!-- 新規顧客名入力欄（customer_id が 0 のときのみ表示） -->
-            <div v-if="form.customer_id == 0" class="mb-4 col-span-2">
-                <label class="block text-sm font-semibold text-gray-700 mb-1"
-                    >お名前</label
-                >
-                <input
-                    type="text"
-                    v-model="form.customer_name"
-                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    placeholder="お名前を入力"
-                />
-            </div>
-
-            <!-- メニュー -->
-            <div class="mb-4 col-span-2">
-                <label class="block text-sm font-semibold text-gray-700 mb-1"
-                    >メニュー</label
-                >
-                <select
-                    v-model="form.menu_id"
-                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                >
-                    <option disabled value="">選択してください</option>
-                    <option
-                        v-for="menu in menuList"
-                        :key="menu.id"
-                        :value="menu.id"
+                <!-- お名前 -->
+                <div class="mb-4 col-span-2">
+                    <label class="block text-sm font-medium mb-1">お名前</label>
+                    <Multiselect
+                        v-model="form.customer"
+                        :options="customerList"
+                        label="name"
+                        track-by="id"
+                        placeholder="顧客名を選択または入力"
+                        select-label="選択"
+                        deselect-label="削除"
+                        selected-label="選択済み"
+                        no-result="該当する顧客が見つかりません"
                     >
-                        {{ menu.name }}
-                    </option>
-                </select>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-1">金額</label>
-                <input
-                    type="number"
-                    v-model.number="form.price"
-                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-            </div>
-
-            <!-- 開始時間 -->
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-1"
-                    >開始時間</label
-                >
-                <template>
-                    <LabeledInput label="開始時間">
-                        <select
-                            v-model="form.start_time"
-                            class="border p-2 rounded w-full"
-                        >
-                            <option
-                                v-for="time in timeOptions"
-                                :key="time"
-                                :value="time"
+                        <template #noResult>
+                            <span class="px-2 py-1 text-sm text-gray-500"
+                                >該当する顧客は見つかりませんでした</span
                             >
-                                {{ time }}
-                            </option>
-                        </select>
-                    </LabeledInput>
-                </template>
-            </div>
-
-            <!-- 終了時間 -->
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-1"
-                    >終了時間</label
-                >
-                <input
-                    type="time"
-                    v-model="form.end_time"
-                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-1"
-                    >予約媒体</label
-                >
-                <select
-                    v-model="form.reservation_source_id"
-                    class="w-full p-2 border rounded"
-                >
-                    <option disabled value="">選択してください</option>
-                    <option
-                        v-for="source in reservationSources"
-                        :key="source.id"
-                        :value="source.id"
+                        </template>
+                        <template #noOptions>
+                            <span class="px-2 py-1 text-sm text-gray-500"
+                                >顧客が存在しません</span
+                            >
+                        </template>
+                    </Multiselect>
+                    <button
+                        @click="openCustomerModal"
+                        class="bg-primary-500 text-white px-3 py-1 rounded"
                     >
-                        {{ source.name }}
-                    </option>
-                </select>
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-1"
-                    >ステータス</label
-                >
-                <select
-                    v-model="form.reservation_status"
-                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                >
-                    <option value="confirmed">確定</option>
-                    <option value="canceled">キャンセル</option>
-                    <option value="no_show">無断キャンセル</option>
-                </select>
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700 mb-1"
-                    >メモ</label
-                >
-                <textarea
-                    v-model="form.memo"
-                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    rows="3"
-                    placeholder="メモ（任意）"
-                />
-            </div>
+                        ＋ 新規顧客を登録
+                    </button>
+
+                    <!-- 顧客登録モーダル -->
+                    <CustomerCreateModal
+                        ref="customerModalRef"
+                        @created="handleCustomerCreated"
+                    />
+                </div>
+
+                <!-- 新規顧客名入力欄（customer_id が 0 のときのみ表示） -->
+                <div v-if="form.customer_id == 0" class="mb-4 col-span-2">
+                    <label
+                        class="block text-sm font-semibold text-gray-700 mb-1"
+                        >お名前</label
+                    >
+                    <input
+                        type="text"
+                        v-model="form.customer_name"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        placeholder="お名前を入力"
+                    />
+                </div>
+
+                <!-- メニュー -->
+                <div class="mb-4 col-span-2">
+                    <label
+                        class="block text-sm font-semibold text-gray-700 mb-1"
+                        >メニュー</label
+                    >
+                    <select
+                        v-model="form.menu_id"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                        <option disabled value="">選択してください</option>
+                        <option
+                            v-for="menu in menuList"
+                            :key="menu.id"
+                            :value="menu.id"
+                        >
+                            {{ menu.name }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label
+                        class="block text-sm font-semibold text-gray-700 mb-1"
+                        >金額</label
+                    >
+                    <input
+                        type="number"
+                        v-model.number="form.price"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                </div>
+
+                <!-- 開始時間 -->
+                <div class="mb-4">
+                    <label
+                        class="block text-sm font-semibold text-gray-700 mb-1"
+                        >開始時間</label
+                    >
+                    <template>
+                        <LabeledInput label="開始時間">
+                            <select
+                                v-model="form.start_time"
+                                class="border p-2 rounded w-full"
+                            >
+                                <option
+                                    v-for="time in timeOptions"
+                                    :key="time"
+                                    :value="time"
+                                >
+                                    {{ time }}
+                                </option>
+                            </select>
+                        </LabeledInput>
+                    </template>
+                </div>
+
+                <!-- 終了時間 -->
+                <div class="mb-4">
+                    <label
+                        class="block text-sm font-semibold text-gray-700 mb-1"
+                        >終了時間</label
+                    >
+                    <input
+                        type="time"
+                        v-model="form.end_time"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                </div>
+                <div class="mb-4">
+                    <label
+                        class="block text-sm font-semibold text-gray-700 mb-1"
+                        >予約媒体</label
+                    >
+                    <select
+                        v-model="form.reservation_source_id"
+                        class="w-full p-2 border rounded"
+                    >
+                        <option disabled value="">選択してください</option>
+                        <option
+                            v-for="source in reservationSources"
+                            :key="source.id"
+                            :value="source.id"
+                        >
+                            {{ source.name }}
+                        </option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label
+                        class="block text-sm font-semibold text-gray-700 mb-1"
+                        >ステータス</label
+                    >
+                    <select
+                        v-model="form.reservation_status"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                        <option value="confirmed">確定</option>
+                        <option value="canceled">キャンセル</option>
+                        <option value="no_show">無断キャンセル</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label
+                        class="block text-sm font-semibold text-gray-700 mb-1"
+                        >メモ</label
+                    >
+                    <textarea
+                        v-model="form.memo"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        rows="3"
+                        placeholder="メモ（任意）"
+                    />
+                </div>
             </div>
             <!-- ボタン -->
             <div class="mt-6 flex justify-end gap-3">
@@ -190,7 +199,7 @@
 <script setup>
 import { ref, watch, onMounted, computed } from "vue";
 import axios from "axios";
-import CustomerCreateModal from "../Customer/CustomerCreateModal.vue";
+import CustomerCreateModal from "../customer/CustomerCreateModal.vue";
 import { useShopStore } from "@/stores/shop";
 const shopStore = useShopStore();
 const shop = computed(() => shopStore.shop);
