@@ -55,6 +55,7 @@ class ReservationController extends Controller
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'duration_minutes' => 'nullable|integer|min:1',
+            'price' => 'nullable|integer',
         ]);
 
         $reservation->update($validated);

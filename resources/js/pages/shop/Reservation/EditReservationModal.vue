@@ -8,8 +8,10 @@
                 {{ reservation.id ? "予約の編集" : "新規予約" }}
             </h2>
 
+            <div class="grid grid-cols-2 gap-4">
+
             <!-- お名前 -->
-            <div class="mb-4">
+            <div class="mb-4 col-span-2">
                 <label class="block text-sm font-medium mb-1">お名前</label>
                 <Multiselect
                     v-model="form.customer"
@@ -48,7 +50,7 @@
             </div>
 
             <!-- 新規顧客名入力欄（customer_id が 0 のときのみ表示） -->
-            <div v-if="form.customer_id == 0" class="mb-4">
+            <div v-if="form.customer_id == 0" class="mb-4 col-span-2">
                 <label class="block text-sm font-semibold text-gray-700 mb-1"
                     >お名前</label
                 >
@@ -61,7 +63,7 @@
             </div>
 
             <!-- メニュー -->
-            <div class="mb-4">
+            <div class="mb-4 col-span-2">
                 <label class="block text-sm font-semibold text-gray-700 mb-1"
                     >メニュー</label
                 >
@@ -78,6 +80,15 @@
                         {{ menu.name }}
                     </option>
                 </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">金額</label>
+                <input
+                    type="number"
+                    v-model.number="form.price"
+                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
             </div>
 
             <!-- 開始時間 -->
@@ -156,6 +167,7 @@
                     placeholder="メモ（任意）"
                 />
             </div>
+            </div>
             <!-- ボタン -->
             <div class="mt-6 flex justify-end gap-3">
                 <button
@@ -198,6 +210,7 @@ const form = ref({
     menu_id: null,
     start_time: "",
     end_time: "",
+    price: null,
     reservation_status: "confirmed", // ← 追加
     reservation_source_id: "",
     memo: "",
@@ -277,8 +290,9 @@ watch(
                 : null;
             form.value.customer_name = res.customer?.name || "";
             form.value.menu_id = res.menu?.id ?? null;
-            form.value.start_time = res.start_time;
-            form.value.end_time = res.end_time;
+            form.value.start_time = formatTime(res.start_time);
+            form.value.end_time = formatTime(res.end_time);
+            form.value.price = res.price;
             // 追加分
             form.value.reservation_status =
                 res.reservation_status || "confirmed";
@@ -339,6 +353,7 @@ const save = async () => {
         const payload = {
             customer_id: customerId,
             menu_id: form.value.menu_id,
+            price: form.value.price,
             start_time: form.value.start_time,
             end_time: form.value.end_time,
             reserved_date: props.reservation.reserved_date,
