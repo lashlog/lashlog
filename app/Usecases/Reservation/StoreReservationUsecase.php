@@ -7,15 +7,18 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Models\Reservation;
 use App\Services\ReservationDomainService;
+use App\Services\DiscountService;
 use Illuminate\Http\Request;
 
 class StoreReservationUseCase
 {
     protected $reservationDomainService;
+    protected $discountService;
 
-    public function __construct(ReservationDomainService $reservationDomainService)
+    public function __construct(ReservationDomainService $reservationDomainService, DiscountService $discountService)
     {
         $this->reservationDomainService = $reservationDomainService;
+        $this->discountService = $discountService;
     }
 
     public function execute(Request $request)
@@ -33,7 +36,7 @@ class StoreReservationUseCase
             'memo' => 'nullable|string',
             'shop_id' => 'required|exists:shops,id',
             'reservation_source_id' => 'nullable|exists:reservation_sources,id',
-            'price' => 'nullable|integer',
+            'coupon_code' => 'nullable|string',
         ], [
             'reserved_date.required' => '予約日を入力してください。',
             'reserved_date.date' => '予約日には正しい日付を入力してください。',
@@ -51,7 +54,6 @@ class StoreReservationUseCase
             'shop_id.required' => '店舗IDが必要です（システムエラー）。',
             'shop_id.exists' => '店舗が存在しません（システムエラー）。',
             'reservation_source_id.exists' => '予約元媒体の情報が正しくありません。',
-            'price.integer' => '金額は数値で入力してください。',
         ]);
 
         if ($validator->fails()) {
@@ -73,6 +75,17 @@ class StoreReservationUseCase
                 'start_time' => ['営業時間外の予約です。'],
             ]);
         }
+
+        $discount = $this->discountService->calculate(
+            $validated['shop_id'],
+            $validated['customer_id'] ?? null,
+            $validated['menu_id'],
+            $validated['reserved_date'],
+            $validated['reservation_source_id'] ?? null,
+            $validated['coupon_code'] ?? null
+        );
+        $validated['price'] = $discount['final_price'];
+        unset($validated['coupon_code']);
 
         return Reservation::create($validated);
     }

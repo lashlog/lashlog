@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Shop\SaleController;
 use App\Http\Controllers\Api\Shop\ReservationSourceController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\StripeController;
+use App\Http\Controllers\Api\Shop\DiscountRuleController;
 use App\Http\Controllers\Api\Staff\AuthController as StaffAuthController;
 use App\Http\Controllers\Api\Staff\AttendanceController;
 use App\Http\Controllers\Api\Staff\ShiftController;
@@ -75,6 +76,7 @@ Route::prefix('shop')->group(function () {
         // 予約の取得・登録など（/api/shop/reservations）
         Route::get('reservations', [ReservationController::class, 'index']);
         Route::post('reservations', [ReservationController::class, 'store']);
+        Route::post('reservations/preview', [ReservationController::class, 'preview']);
         Route::get('reservations/{id}', [ReservationController::class, 'show']);
         Route::put('reservations/{id}', [ReservationController::class, 'update']);
         Route::delete('reservations/{id}', [ReservationController::class, 'destroy']);
@@ -102,6 +104,13 @@ Route::prefix('shop')->group(function () {
         // 売上の取得・登録
         Route::get('/sales', [SaleController::class, 'index']);
         Route::post('/sales', [SaleController::class, 'store']);
+
+        // 割引ルールのCRUD
+        Route::get('/discount-rules', [DiscountRuleController::class, 'index']);
+        Route::post('/discount-rules', [DiscountRuleController::class, 'store']);
+        Route::get('/discount-rules/{id}', [DiscountRuleController::class, 'show']);
+        Route::put('/discount-rules/{id}', [DiscountRuleController::class, 'update']);
+        Route::delete('/discount-rules/{id}', [DiscountRuleController::class, 'destroy']);
 
         Route::get('/business-hours', [ShopController::class, 'getBusinessHours']);
     });

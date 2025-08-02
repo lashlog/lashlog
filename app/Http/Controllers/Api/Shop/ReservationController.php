@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreReservationWithCustomerRequest;
 use App\UseCases\Reservation\StoreReservationUseCase;
 use App\UseCases\Reservation\StoreReservationWithCustomerUseCase;
+use App\Services\DiscountService;
 
 class ReservationController extends Controller
 {
@@ -29,6 +30,29 @@ class ReservationController extends Controller
     {
         $reservation = $useCase->execute($request);
         return response()->json($reservation);
+    }
+
+    public function preview(Request $request, DiscountService $discountService)
+    {
+        $validated = $request->validate([
+            'menu_id' => 'required|exists:menus,id',
+            'reserved_date' => 'required|date',
+            'customer_id' => 'nullable|exists:customers,id',
+            'reservation_source_id' => 'nullable|exists:reservation_sources,id',
+            'coupon_code' => 'nullable|string',
+        ]);
+
+        $shopId = auth('shop')->id();
+        $result = $discountService->calculate(
+            $shopId,
+            $validated['customer_id'] ?? null,
+            $validated['menu_id'],
+            $validated['reserved_date'],
+            $validated['reservation_source_id'] ?? null,
+            $validated['coupon_code'] ?? null
+        );
+
+        return response()->json($result);
     }
 
     public function storeWithCustomer(StoreReservationWithCustomerRequest $request,  StoreReservationWithCustomerUseCase $storeReservationWithCustomerUseCase)

@@ -9,6 +9,7 @@ const navItems = [
     { to: "/shop/settings/schedules", label: "営業日設定" },
     { to: "/shop/settings/menus", label: "メニュー管理" },
     { to: "/shop/settings/reservation-sources", label: "予約元管理" },
+    { to: "/shop/settings/discount-rules", label: "割引設定" },
 ];
 
 const isActive = (path) => {

@@ -92,6 +92,7 @@
                         type="number"
                         v-model.number="form.price"
                         class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        readonly
                     />
                 </div>
 
@@ -150,6 +151,23 @@
                         </option>
                     </select>
                 </div>
+                <div class="mb-4 col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">クーポンコード</label>
+                    <input
+                        type="text"
+                        v-model="form.coupon_code"
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                </div>
+                <div v-if="appliedDiscounts.length" class="mb-4 col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">適用割引</label>
+                    <ul class="list-disc pl-5 text-sm text-gray-700">
+                        <li v-for="d in appliedDiscounts" :key="d.id">
+                            {{ d.name }} - {{ d.amount }}円
+                        </li>
+                    </ul>
+                    <p class="mt-2 font-bold">割引合計: {{ totalDiscount }}円</p>
+                </div>
                 <div class="mb-4">
                     <label
                         class="block text-sm font-semibold text-gray-700 mb-1"
@@ -199,7 +217,7 @@
 <script setup>
 import { ref, watch, onMounted, computed } from "vue";
 import axios from "axios";
-import CustomerCreateModal from "../customer/CustomerCreateModal.vue";
+import CustomerCreateModal from "../Customer/CustomerCreateModal.vue";
 import { useShopStore } from "@/stores/shop";
 const shopStore = useShopStore();
 const shop = computed(() => shopStore.shop);
@@ -222,6 +240,7 @@ const form = ref({
     price: null,
     reservation_status: "confirmed", // ← 追加
     reservation_source_id: "",
+    coupon_code: "",
     memo: "",
 });
 const customerList = ref([]);
@@ -268,6 +287,8 @@ const fetchReservationSources = async () => {
         console.error("予約媒体の取得に失敗しました", e);
     }
 };
+const appliedDiscounts = ref([]);
+const totalDiscount = ref(0);
 
 const addNewCustomer = (newName) => {
     form.value.customer = { id: null, name: newName };
@@ -283,6 +304,25 @@ const menuList = ref([]);
 const fetchMenus = async () => {
     const res = await axios.get("/api/shop/menus", { withCredentials: true });
     menuList.value = res.data;
+};
+
+const previewDiscounts = async () => {
+    if (!form.value.menu_id) return;
+    const payload = {
+        menu_id: form.value.menu_id,
+        reserved_date: props.reservation.reserved_date,
+        customer_id: form.value.customer?.id ?? null,
+        reservation_source_id: form.value.reservation_source_id || null,
+        coupon_code: form.value.coupon_code || null,
+    };
+    try {
+        const res = await axios.post("/api/shop/reservations/preview", payload);
+        form.value.price = res.data.final_price;
+        appliedDiscounts.value = res.data.discounts;
+        totalDiscount.value = res.data.total_discount;
+    } catch (e) {
+        console.error("割引計算に失敗しました", e);
+    }
 };
 
 onMounted(() => {
@@ -311,9 +351,22 @@ watch(
                 res.reservation_status || "confirmed";
             form.value.memo = res.memo || "";
             form.value.reservation_source_id = res.reservation_source_id || "";
+            form.value.coupon_code = "";
         }
+        previewDiscounts();
     },
     { immediate: true }
+);
+
+watch(
+    () => [
+        form.value.menu_id,
+        form.value.customer,
+        form.value.reservation_source_id,
+        form.value.coupon_code,
+    ],
+    previewDiscounts,
+    { deep: true }
 );
 const isOverlapping = () => {
     const format = (t) => t?.slice(0, 5);
@@ -363,13 +416,13 @@ const save = async () => {
         const payload = {
             customer_id: customerId,
             menu_id: form.value.menu_id,
-            price: form.value.price,
             start_time: form.value.start_time,
             end_time: form.value.end_time,
             reserved_date: props.reservation.reserved_date,
             staff_id: props.reservation.staff_id,
             reservation_status: form.value.reservation_status,
             reservation_source_id: form.value.reservation_source_id,
+            coupon_code: form.value.coupon_code,
             memo: form.value.memo,
         };
 

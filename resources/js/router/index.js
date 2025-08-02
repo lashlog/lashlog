@@ -19,6 +19,9 @@ import Schedule from "../pages/shop/settings/schedule/Schedule.vue";
 import ReservationSourceCreate from "../pages/shop/settings/reservation_source/ReservationSourceCreate.vue";
 import ReservationSourceEdit from "../pages/shop/settings/reservation_source/ReservationSourceEdit.vue";
 import ReservationSourceList from "../pages/shop/settings/reservation_source/ReservationSourceList.vue";
+import DiscountRuleList from "../pages/shop/settings/discount_rule/DiscountRuleList.vue";
+import DiscountRuleCreate from "../pages/shop/settings/discount_rule/DiscountRuleCreate.vue";
+import DiscountRuleEdit from "../pages/shop/settings/discount_rule/DiscountRuleEdit.vue";
 import Plans from "../pages/subscribe/Plans.vue";
 import Complete from "../pages/subscribe/Complete.vue";
 import Register from "../pages/subscribe/Register.vue";
@@ -147,6 +150,24 @@ const routes = [
                 component: ReservationSourceCreate,
                 meta: { requiresAuth: true },
                 name: "shop.settings.reservation_sources.create",
+            },
+            {
+                path: "discount-rules",
+                component: DiscountRuleList,
+                meta: { requiresAuth: true },
+                name: "shop.settings.discount_rules.index",
+            },
+            {
+                path: "discount-rules/create",
+                component: DiscountRuleCreate,
+                meta: { requiresAuth: true },
+                name: "shop.settings.discount_rules.create",
+            },
+            {
+                path: "discount-rules/:id/edit",
+                component: DiscountRuleEdit,
+                meta: { requiresAuth: true },
+                name: "shop.settings.discount_rules.edit",
             },
         ],
     },

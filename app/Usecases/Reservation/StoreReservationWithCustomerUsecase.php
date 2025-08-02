@@ -5,6 +5,7 @@ namespace App\UseCases\Reservation;
 use App\Repositories\CustomerRepository;
 use App\Repositories\ReservationRepository;
 use App\Services\ReservationDomainService;
+use App\Services\DiscountService;
 use Illuminate\Support\Facades\DB;
 use App\Models\Reservation;
 
@@ -13,7 +14,8 @@ class StoreReservationWithCustomerUseCase
     public function __construct(
         private CustomerRepository $customerRepo,
         private ReservationRepository $reservationRepo,
-        private ReservationDomainService $reservationDomainService
+        private ReservationDomainService $reservationDomainService,
+        private DiscountService $discountService
     ) {}
 
     public function execute(array $data, int $shopId): Reservation
@@ -51,6 +53,15 @@ class StoreReservationWithCustomerUseCase
                 throw new \DomainException('予約が重複しています');
             }
 
+            $discount = $this->discountService->calculate(
+                $shopId,
+                $customerId,
+                $data['menu_id'],
+                $data['reserved_date'],
+                $data['reservation_source_id'] ?? null,
+                $data['coupon_code'] ?? null
+            );
+
             // 予約作成
             return $this->reservationRepo->create([
                 'shop_id'       => $shopId,
@@ -62,7 +73,7 @@ class StoreReservationWithCustomerUseCase
                 'end_time'      => $data['end_time'],
                 'memo' => $data['memo'] ?? null,
                 'reservation_source_id' => $data['reservation_source_id'] ?? null,
-                'price' => $data['price'] ?? null,
+                'price' => $discount['final_price'],
             ]);
         });
     }

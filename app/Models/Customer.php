@@ -15,6 +15,7 @@ class Customer extends Model
         'shop_id',
         'phone',
         'email',
+        'birthday',
         'allergy_notes',
         'surgery_notes',
         'user_id', // 追加されたuser_id
@@ -34,5 +35,13 @@ class Customer extends Model
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);
+    }
+
+    /**
+     * この顧客の予約一覧
+     */
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
     }
 }
