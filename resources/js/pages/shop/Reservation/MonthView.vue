@@ -70,7 +70,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import dayjs from 'dayjs'
 
 const props = defineProps({
@@ -89,6 +89,17 @@ const emit = defineEmits([
 const selectedDate = ref(dayjs().format('YYYY-MM-DD'))
 
 const month = ref(dayjs(`${props.currentMonth}-01`))
+
+watch(
+    () => props.currentMonth,
+    (val) => {
+        month.value = dayjs(`${val}-01`)
+    }
+)
+
+onMounted(() => {
+    emit('update:currentMonth', month.value.format('YYYY-MM'))
+})
 
 const reservationsMap = computed(() => {
     const map = {}
