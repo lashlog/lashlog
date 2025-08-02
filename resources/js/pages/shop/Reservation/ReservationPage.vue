@@ -76,9 +76,16 @@ const openNewModal = (info) => {
 const reloadReservations = async () => {
     if (!shop.value) return;
     try {
+        const start = dayjs(currentDate.value)
+            .startOf("month")
+            .format("YYYY-MM-DD");
+        const end = dayjs(currentDate.value)
+            .endOf("month")
+            .format("YYYY-MM-DD");
         const res = await axios.get("/api/shop/reservations", {
             params: {
-                date: currentDate.value, // ← 今日の日付などに変更してもOK
+                from: start,
+                to: end,
             },
         });
         reservations.value = res.data;
