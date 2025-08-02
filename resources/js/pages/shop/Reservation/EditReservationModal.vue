@@ -152,7 +152,10 @@
                     </select>
                 </div>
                 <div class="mb-4 col-span-2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">クーポンコード</label>
+                    <label
+                        class="block text-sm font-semibold text-gray-700 mb-1"
+                        >クーポンコード</label
+                    >
                     <input
                         type="text"
                         v-model="form.coupon_code"
@@ -160,13 +163,18 @@
                     />
                 </div>
                 <div v-if="appliedDiscounts.length" class="mb-4 col-span-2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">適用割引</label>
+                    <label
+                        class="block text-sm font-semibold text-gray-700 mb-1"
+                        >適用割引</label
+                    >
                     <ul class="list-disc pl-5 text-sm text-gray-700">
                         <li v-for="d in appliedDiscounts" :key="d.id">
                             {{ d.name }} - {{ d.amount }}円
                         </li>
                     </ul>
-                    <p class="mt-2 font-bold">割引合計: {{ totalDiscount }}円</p>
+                    <p class="mt-2 font-bold">
+                        割引合計: {{ totalDiscount }}円
+                    </p>
                 </div>
                 <div class="mb-4">
                     <label
@@ -217,7 +225,7 @@
 <script setup>
 import { ref, watch, onMounted, computed } from "vue";
 import axios from "axios";
-import CustomerCreateModal from "../Customer/CustomerCreateModal.vue";
+import CustomerCreateModal from "../customer/CustomerCreateModal.vue";
 import { useShopStore } from "@/stores/shop";
 const shopStore = useShopStore();
 const shop = computed(() => shopStore.shop);
