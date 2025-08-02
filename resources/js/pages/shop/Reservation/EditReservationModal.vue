@@ -235,6 +235,10 @@ const timeOptions = computed(() =>
     )
 );
 
+function formatTime(timeStr) {
+    return timeStr.slice(0, 5); // "10:00:00" → "10:00"
+}
+
 function generateTimeOptions(unitMinutes = 30, start = "09:00", end = "23:00") {
     const times = [];
     const [startHour, startMin] = start.split(":").map(Number);
@@ -311,9 +315,6 @@ watch(
     },
     { immediate: true }
 );
-const formatTime = (timeStr) => {
-    return timeStr.slice(0, 5); // "10:00:00" → "10:00"
-};
 const isOverlapping = () => {
     const format = (t) => t?.slice(0, 5);
     const newStart = form.value.start_time;
