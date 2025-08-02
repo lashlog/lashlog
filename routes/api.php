@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\Shop\StaffController;
 use App\Http\Controllers\Api\Shop\MenuCategoryController;
 use App\Http\Controllers\Api\Shop\SaleController;
 use App\Http\Controllers\Api\Shop\ReservationSourceController;
+use App\Http\Controllers\Api\Shop\ReservationSourceFeeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\StripeController;
 use App\Http\Controllers\Api\Staff\AuthController as StaffAuthController;
@@ -72,6 +73,9 @@ Route::prefix('shop')->group(function () {
         Route::get('/reservation-sources/{id}', [ReservationSourceController::class, 'show']);
         Route::put('/reservation-sources/{id}', [ReservationSourceController::class, 'update']);
         Route::delete('/reservation-sources/{id}', [ReservationSourceController::class, 'destroy']);
+        Route::get('/reservation-sources/{id}/fees', [ReservationSourceFeeController::class, 'index']);
+        Route::post('/reservation-sources/{id}/fees', [ReservationSourceFeeController::class, 'store']);
+        Route::delete('/reservation-sources/{id}/fees', [ReservationSourceFeeController::class, 'destroy']);
         // 予約の取得・登録など（/api/shop/reservations）
         Route::get('reservations', [ReservationController::class, 'index']);
         Route::post('reservations', [ReservationController::class, 'store']);

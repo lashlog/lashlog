@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\ReservationSourceFee;
 
 // App\Models\ReservationSource
 class ReservationSource extends Model
@@ -14,6 +15,11 @@ class ReservationSource extends Model
     public function reservations()
     {
         return $this->hasMany(Reservation::class);
+    }
+
+    public function fees()
+    {
+        return $this->hasMany(ReservationSourceFee::class);
     }
     public function scopeActive($query)
     {
