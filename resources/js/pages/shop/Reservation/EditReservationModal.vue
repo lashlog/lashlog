@@ -199,7 +199,7 @@
 <script setup>
 import { ref, watch, onMounted, computed } from "vue";
 import axios from "axios";
-import CustomerCreateModal from "../customer/CustomerCreateModal.vue";
+import CustomerCreateModal from "../Customer/CustomerCreateModal.vue";
 import { useShopStore } from "@/stores/shop";
 const shopStore = useShopStore();
 const shop = computed(() => shopStore.shop);
@@ -235,9 +235,8 @@ const timeOptions = computed(() =>
     )
 );
 
-function formatTime(timeStr) {
-    return timeStr.slice(0, 5); // "10:00:00" → "10:00"
-}
+// 時刻文字列(例: "10:00:00") を "10:00" の形に整形する
+const formatTime = (timeStr) => timeStr.slice(0, 5);
 
 function generateTimeOptions(unitMinutes = 30, start = "09:00", end = "23:00") {
     const times = [];
